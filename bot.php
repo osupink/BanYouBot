@@ -914,5 +914,12 @@ switch ($_POST['Event']) {
 		CheckEvent();
 		$messages=explode("\r",$_POST['Message']);
 		HandleMessage(1,$messages);
+		break;
+	case 'AddedToCluster':
+		// 新成员入群
+		if ($_POST['ExternalId'] == $mainGroupNumber) {
+			echo "<&&>SendClusterMessage<&>{$mainGroupNumber}<&>[@{$_POST['QQ']}] 欢迎来到 BanYou 玩家群，请将你的名片改为 osu! ID。\n要进入 BanYou，请在群文件下载客户端和使用指南。\n目前新玩家赠送 7 天的 SP（SupportPlayer，类似官服的 Supporter，我们的 Supporter 提供给大量贡献的成员），而邀请一个成功进入 BanYou 的新玩家则赠送 14 天。\n";
+		}
+		break;
 }
 ?>
