@@ -157,6 +157,7 @@ function CheckCommandBlacklist($command,$admin=1) {
 		case 'help':
 		case 'roll':
 		case 'weather':
+		case 'botadmin':
 			break;
 		case 'sleep':
 			if ($_POST['ExternalId'] == "707983601") {
