@@ -10,7 +10,8 @@ $commandhelp=array(
 'checkin'=>array('!checkin','Checkin to get a prize'),
 'user'=>array('supporter'=>array('!user supporter <BanYou Username>','View supporter expirydate')),
 'bancoin'=>array('bill'=>array('!bancoin bill','Show my BanCoin bill'),'rank'=>array('!bancoin rank','Show player ranking (Only group chat is available)'),'showcard'=>array('!bancoin showcard','Show my card'),'balance'=>array('!bancoin balance','Query my balance'),'transfer'=>array('!bancoin transfer <QQ> <BanCoin>','Transfer BanCoin to other QQ')),
-'weather'=>array('!weather <City>','Weather Forecast')
+'weather'=>array('!weather <City>','Weather Forecast'),
+'botadmin'=>array('blockqq'=>array('!botadmin blockqq <QQNumber> <Silence Time>','Add QQ into blocklist'),'blocktext'=>array('!botadmin blocktext <Text>','Add text into blocklist'),'unblockqq'=>array('!botadmin unblockqq <QQNumber>','Delete QQ from blocklist'),'unblocktext'=>array('!botadmin unblocktext <Text>','Delete text from blocklist'))
 );
 function isBanSay() {
 	if (file_exists('bansay')) {
@@ -178,6 +179,7 @@ function CheckCommandBlacklist($command,$admin=1) {
 }
 function CheckSilenceList($fullmessage) {
 	// 0:不在禁言名单, 其它:禁言分钟数
+	global $conn;
 	switch ($fullmessage) {
 		/*
 		case '[image=A2DA722F8EAD905AC7883C6E4CDB85D3.jpg]':
@@ -187,8 +189,17 @@ function CheckSilenceList($fullmessage) {
 			break;
 		*/
 		default:
+			$lowerfullmessage=strtolower($fullmessage);
+			if ($conn->queryOne("SELECT 1 FROM bot_blocktextlist WHERE group_number = {$_POST['ExternalId']} AND BlockText = '{$lowerfullmessage}' LIMIT 1")) {
+				return 10;
+			} elseif ($blockTime=$conn->queryOne("SELECT BlockTime FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']} AND BlockQQ = {$_POST['QQ']} LIMIT 1")) {
+				return $blockTime;
+			}
 			return 0;
 	}
+}
+function Silence($groupNumber,$QQNumber,$silenceTime) {
+	echo "<&&>Silenced<&>{$groupNumber}<&>{$QQNumber}<&>{$silenceTime}\n";
 }
 function CheckEvent() {
 	global $conn,$groupNumber,$devGroupNumber,$mainGroupNumber,$highScoreTable;
@@ -260,7 +271,8 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 				break;
 			}
 			$audiopath=GetCurFullPath("走好不送.amr");
-			echo "<&&>Silenced<&>{$_POST['ExternalId']}<&>{$_POST['QQ']}<&>{$silenceTime}\n<&&>SendClusterMessage<&>{$_POST['ExternalId']}<&>[声音={$audiopath}]\n";
+			Silence($_POST['ExternalId'],$_POST['QQ'],$silenceTime);
+			echo "<&&>SendClusterMessage<&>{$_POST['ExternalId']}<&>[声音={$audiopath}]\n";
 			break;
 		case 'fs':
 			if (count($splitarr) < 2) {
@@ -270,8 +282,71 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 				$splitarr[2]=10;
 			}
 			for ($i=0;$i<$splitarr[2];$i++) {
-				echo "<&&>Silenced<&>{$_POST['ExternalId']}<&>{$splitarr[1]}<&>600\n";
-				echo "<&&>Silenced<&>{$_POST['ExternalId']}<&>{$splitarr[1]}<&>0\n";
+				Silence($_POST['ExternalId'],$splitarr[1],600);
+				Silence($_POST['ExternalId'],$splitarr[1],0);
+			}
+			break;
+		case 'botadmin':
+			if ($_POST['QQ'] != $masterQQ && !$conn->queryOne("SELECT 1 FROM bot_groupinfo WHERE group_number = {$_POST['ExternalId']} AND bot_fakeadmin = {$_POST['QQ']} LIMIT 1")) {
+				$text.="You are fake admin!\n";
+				break;
+			}
+			if (count($splitarr) < 2) {
+				foreach ($commandhelp['botadmin'] as $value) {
+					$text.="{$value[0]} - {$value[1]}\n";
+				}
+				break;
+			}
+			$subtype=$splitarr[1];
+			unset($splitarr[0],$splitarr[1]);
+			$splitarr=array_merge($splitarr);
+			switch (strtolower($subtype)) {
+				case 'blockqq':
+					if (count($splitarr) < 2) {
+						$text.="Usage: {$commandhelp['botadmin']['blockqq'][0]}.\n";
+						break;
+					}
+					if (!is_numeric($splitarr[0]) || strlen($splitarr[0]) > 11 || strlen($splitarr[0]) < 5) {
+						$text.="It's not a true number.\n";
+						break;
+					}
+					if (!is_numeric($splitarr[1]) || strlen($splitarr[1]) > 3 || strlen($splitarr[1]) < 1) {
+						$text.="It's not a true silence time.\n";
+						break;
+					}
+					$qqNumber=(int)$splitarr[0];
+					$silenceTime=(int)$splitarr[1];
+					$conn->exec("INSERT INTO bot_blockqqlist VALUES ({$_POST['ExternalId']},{$splitarr[0]},{$splitarr[1]})");
+					$text.="OK.\n";
+					break;
+				case 'blocktext':
+					if (count($splitarr) < 1) {
+						$text.="Usage: {$commandhelp['botadmin']['blocktext'][0]}.\n";
+						break;
+					}
+					$blockstr=sqlstr(implode(' ',$splitarr));
+					$conn->exec("INSERT INTO bot_blocktextlist VALUES ({$_POST['ExternalId']},'{$blockstr}')");
+					$text.="OK.\n";
+					break;
+				case 'unblockqq':
+					if (count($splitarr) < 1) {
+						$text.="Usage: {$commandhelp['botadmin']['unblockqq'][0]}.\n";
+						break;
+					}
+					$qqNumber=(int)$splitarr[0];
+					$conn->exec("DELETE FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']} AND BlockQQ = {$qqNumber} LIMIT 1");
+					$text.="OK.\n";
+				case 'unblocktext':
+					if (count($splitarr) < 1) {
+						$text.="Usage: {$commandhelp['botadmin']['unblocktext'][0]}.\n";
+						break;
+					}
+					$blockstr=sqlstr(implode(' ',$splitarr));
+					$conn->exec("DELETE FROM bot_blocktextlist WHERE group_number = {$_POST['ExternalId']} AND BlockText = '{$blockstr}' LIMIT 1");
+					$text.="OK.\n";
+					break;
+				default:
+					break;
 			}
 			break;
 		default:
@@ -810,7 +885,8 @@ function HandleMessage($isGroup,$messages) {
 			$isSilence=CheckSilenceList($fullmessage);
 			if ($isSilence !== 0) {
 				$isSilence*=60;
-				die("<&&>Silenced<&>{$_POST['ExternalId']}<&>{$_POST['QQ']}<&>{$isSilence}\n");
+				Silence($_POST['ExternalId'],$_POST['QQ'],$isSilence);
+				die();
 			}
 		}
 		$message=(substr($fullmessage,0,1) === '!') ? substr($fullmessage,1) : "";
@@ -876,7 +952,11 @@ $groupNumber=array(
 	'132783429'
 );
 if (isset($_POST['QQ'])) {
+	$_POST['QQ']=(int)$_POST['QQ'];
 	$isMaster=($_POST['QQ'] == $masterQQ);
+}
+if (isset($_POST['ExternalId'])) {
+	$_POST['ExternalId']=(int)$_POST['ExternalId'];
 }
 switch ($_POST['Event']) {
 	case 'KeepAlive':
@@ -919,6 +999,8 @@ switch ($_POST['Event']) {
 		// 新成员入群
 		if ($_POST['ExternalId'] == $mainGroupNumber) {
 			echo "<&&>SendClusterMessage<&>{$mainGroupNumber}<&>[@{$_POST['QQ']}] 欢迎来到 BanYou 玩家群，请将你的名片改为 osu! ID。\n要进入 BanYou，请在群文件下载客户端和使用指南。\n成功邀请一个进入 BanYou 的新玩家将赠送 14 天 BanYou SupportPlayer。\n";
+		} elseif ($blockTime=$conn->queryOne("SELECT BlockTime FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']} AND BlockQQ = {$_POST['QQ']} LIMIT 1")) {
+			Silence($_POST['ExternalId'],$_POST['QQ'],$blockTime*60);
 		}
 		break;
 }
