@@ -191,7 +191,7 @@ function CheckSilenceList($fullmessage) {
 		*/
 		default:
 			$lowerfullmessage=strtolower($fullmessage);
-			if ($conn->queryOne("SELECT 1 FROM bot_blocktextlist WHERE group_number = {$_POST['ExternalId']} AND BlockText = '{$lowerfullmessage}' LIMIT 1")) {
+			if ($conn->queryOne("SELECT 1 FROM bot_blocktextlist WHERE group_number = {$_POST['ExternalId']} AND LOCATE(BlockText,'{$lowerfullmessage}') > 0 LIMIT 1")) {
 				return 10;
 			} elseif ($blockTime=$conn->queryOne("SELECT BlockTime FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']} AND BlockQQ = {$_POST['QQ']} LIMIT 1")) {
 				return $blockTime;
