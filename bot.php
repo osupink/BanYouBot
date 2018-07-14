@@ -180,7 +180,7 @@ function CheckCommandBlacklist($command,$admin=1) {
 }
 function CheckSilenceList($fullmessage) {
 	// 0:不在禁言名单, 其它:禁言分钟数
-	global $conn;
+	global $conn,$masterQQ;
 	switch ($fullmessage) {
 		/*
 		case '[image=A2DA722F8EAD905AC7883C6E4CDB85D3.jpg]':
@@ -190,11 +190,13 @@ function CheckSilenceList($fullmessage) {
 			break;
 		*/
 		default:
-			$lowerfullmessage=strtolower($fullmessage);
-			if ($conn->queryOne("SELECT 1 FROM bot_blocktextlist WHERE group_number = {$_POST['ExternalId']} AND LOCATE(BlockText,'{$lowerfullmessage}') > 0 LIMIT 1")) {
-				return 10;
-			} elseif ($blockTime=$conn->queryOne("SELECT BlockTime FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']} AND BlockQQ = {$_POST['QQ']} LIMIT 1")) {
-				return $blockTime;
+			if ($_POST['QQ'] != $masterQQ && !$conn->queryOne("SELECT 1 FROM bot_groupinfo WHERE group_number = {$_POST['ExternalId']} AND bot_fakeadmin = {$_POST['QQ']} LIMIT 1")) {
+				$lowerfullmessage=strtolower($fullmessage);
+				if ($conn->queryOne("SELECT 1 FROM bot_blocktextlist WHERE group_number = {$_POST['ExternalId']} AND LOCATE(BlockText,'{$lowerfullmessage}') > 0 LIMIT 1")) {
+					return 10;
+				} elseif ($blockTime=$conn->queryOne("SELECT BlockTime FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']} AND BlockQQ = {$_POST['QQ']} LIMIT 1")) {
+					return $blockTime;
+				}
 			}
 			return 0;
 	}
