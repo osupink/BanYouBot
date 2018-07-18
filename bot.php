@@ -211,7 +211,8 @@ function CheckEvent() {
 		$eventList=$conn->queryAll("SELECT e.id, e.mode as mode, m.modename as modename, e.user_id as user_id, u.username as username, e.beatmap_id as beatmap_id, b.beatmapset_id as beatmapset_id, e.text as ranknumber, CONCAT(IF(b.artist != '',CONCAT(b.artist,' - ',b.title),b.title)) as beatmap_name, b.version as version, b.hit_length as hit_length, b.total_length as total_length, REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(et.`zh-ubbrule`,'{user_id}',e.user_id),'{username}',u.username),'{text}',e.text),'{beatmap_id}',e.beatmap_id),'{mode}',e.mode),'{artist}',IF(b.artist != '',CONCAT(b.artist,' - '),'')),'{title}',b.title),'{version}',b.version),'{modename}',m.modename) as text FROM osu_events e JOIN osu_users u USING (user_id) JOIN osu_beatmaps b USING (beatmap_id) JOIN osu_events_type et USING (type) JOIN osu_modes m ON m.id = e.mode WHERE e.type = 1 AND e.id > {$lastEventID} ORDER BY e.id");
 		foreach ($eventList as $value) {
 			setGameMode($value['mode']);
-			list($scoreID,$rank,$modsnumber)=$conn->queryRow("SELECT score_id, rank, enabled_mods FROM {$highScoreTable} WHERE user_id = {$value['user_id']} AND beatmap_id = {$value['beatmap_id']} LIMIT 1",1);
+			list($scoreID,$rank,$modsnumber,$finalpp)=$conn->queryRow("SELECT score_id, rank, enabled_mods, pp FROM {$highScoreTable} WHERE user_id = {$value['user_id']} AND beatmap_id = {$value['beatmap_id']} LIMIT 1",1);
+			$pp=$conn->queryOne("SELECT pp FROM {$scoreTable} WHERE score_id = {$scoreID} LIMIT 1");
 			$rank=str_replace('H','+Hidden',str_replace('X','SS',$rank));
 			$value['text']=str_replace('{score_id}',$scoreID,$value['text']);
 			$value['text']=str_replace('{username}',$value['username'],$value['text']);
@@ -220,6 +221,8 @@ function CheckEvent() {
 			$value['text']=str_replace('{display_username}',($QQNumber !== 0 ? "[@{$QQNumber}]" : $value['username']),$value['text']);
 			$value['text']=str_replace('{ue_username}',rawurlencode($value['username']),$value['text']);
 			$value['text']=str_replace('{rank}',$rank,$value['text']);
+			$value['text']=str_replace('{pp}',$pp,$value['text']);
+			$value['text']=str_replace('{finalpp}',$finalpp,$value['text']);
 			$value['text']=str_replace('{ranknumber}',$value['ranknumber'],$value['text']);
 			$value['text']=str_replace('{beatmap_id}',$value['beatmap_id'],$value['text']);
 			$value['text']=str_replace('{beatmapset_id}',$value['beatmapset_id'],$value['text']);
