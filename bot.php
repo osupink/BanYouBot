@@ -75,12 +75,15 @@ function AddBuyEvent($qq,$store_id,$pay_id) {
 	}
 	return 0;
 }
-function GiveBackMoney($money) {
+function GiveBackMoney($payid) {
 	global $conn;
-	if (!is_numeric($money)) {
+	if (!is_numeric($payid)) {
 		return 0;
 	}
-	return $conn->exec("DELETE FROM osu_pay WHERE money = $money LIMIT 1");
+	if ($conn->exec("DELETE FROM osu_store_bill WHERE pay_id = {$payid} LIMIT 1") && $conn->exec("DELETE FROM osu_pay WHERE id = {$payid} LIMIT 1")) {
+		return 1;
+	}
+	return 0;
 }
 function GetCurMoney($qq) {
 	global $conn;
@@ -800,8 +803,10 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 						}
 						if (mysqli_affected_rows($conn) < 1) {
 							$text.="交付商品时发生错误";
-							if (!GiveBackMoney($finalprice)) {
-								$text.="，退还余额失败";
+							if (isset($payid)) {
+								if (!GiveBackMoney($payid)) {
+									$text.="，退还余额失败";
+								}
 							}
 						} else {
 							if ($goodsstock !== null && $goodsstock >= $buyCount) {
