@@ -214,8 +214,8 @@ function CheckEvent() {
 			list($scoreID,$rank,$modsnumber,$finalpp)=$conn->queryRow("SELECT score_id, rank, enabled_mods, pp FROM {$highScoreTable} WHERE user_id = {$value['user_id']} AND beatmap_id = {$value['beatmap_id']} LIMIT 1",1);
 			$pp=$conn->queryOne("SELECT pp FROM {$scoreTable} WHERE score_id = {$scoreID} LIMIT 1");
 			$rank=str_replace('H','+Hidden',str_replace('X','SS',$rank));
-			$pp=round($pp,2);
-			$finalpp=round($finalpp,2);
+			$pp=sprintf('%.2f',$pp);
+			$finalpp=sprintf('%.2f',$finalpp);
 			$value['text']=str_replace('{score_id}',$scoreID,$value['text']);
 			$value['text']=str_replace('{username}',$value['username'],$value['text']);
 			$QQNumber=0;
