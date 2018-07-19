@@ -717,7 +717,7 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 					$text.="页数：{$page}/{$maxPage}";
 					break;
 				case 'mygoods':
-					$goodslist=$conn->queryAll("SELECT COUNT(*) as count,s.name,s.callname FROM osu_store_bill sb JOIN osu_store s ON s.id = sb.store_id WHERE sb.qq = {$_POST['QQ']} GROUP BY store_id ORDER BY count DESC",0);
+					$goodslist=$conn->queryAll("SELECT COUNT(*) as count,s.name,s.callname FROM osu_store_bill sb JOIN osu_store s ON s.id = sb.store_id WHERE sb.qq = {$_POST['QQ']} AND s.disposable = 0 GROUP BY store_id ORDER BY count DESC",0);
 					if (count($goodslist) != 0) {
 						foreach ($goodslist as $value) {
 							$text.="数量：{$value['count']}，简称：{$value['name']}，品名：{$value['callname']}.\n";
@@ -736,7 +736,7 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 						break;
 					}
 					$splitarr[3]=sqlstr($splitarr[3]);
-					list($curGoodsCount,$curGoodsStoreID)=$conn->queryRow("SELECT COUNT(*), sb.store_id FROM osu_store_bill sb JOIN osu_store s ON s.id = sb.store_id WHERE sb.qq = {$_POST['QQ']} AND s.name = '{$splitarr[3]}'",1);
+					list($curGoodsCount,$curGoodsStoreID)=$conn->queryRow("SELECT COUNT(*), sb.store_id FROM osu_store_bill sb JOIN osu_store s ON s.id = sb.store_id WHERE sb.qq = {$_POST['QQ']} AND s.disposable = 0 AND s.name = '{$splitarr[3]}'",1);
 					if ($splitarr[4] < 1) {
 						$text.="赠送数量必须大于 0";
 						break;
