@@ -149,7 +149,7 @@ function isAllowGroupMessage() {
 }
 function CheckCommandBlacklist($command,$admin=1) {
 	// 0:不在黑名单, 1:指令黑名单, 2:QQ/群组黑名单.
-	global $masterQQ,$isMaster,$groupNumber,$devGroupNumber,$mainGroupNumber;
+	global $conn,$masterQQ,$isMaster,$groupNumber,$devGroupNumber,$mainGroupNumber;
 	if ($isMaster && $admin) {
 		return 0;
 	}
@@ -160,7 +160,11 @@ function CheckCommandBlacklist($command,$admin=1) {
 		case 'help':
 		case 'roll':
 		case 'weather':
+			break;
 		case 'botadmin':
+			if (!$isMaster && !$conn->queryOne("SELECT 1 FROM bot_groupinfo WHERE group_number = {$_POST['ExternalId']} AND bot_fakeadmin = {$_POST['QQ']} LIMIT 1")) {
+				return 1;
+			}
 			break;
 		case 'sleep':
 			if ($_POST['ExternalId'] == "707983601") {
