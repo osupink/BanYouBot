@@ -41,7 +41,7 @@ class mysqlp extends mysqli
 		$result = $this->query($query);
 
 		if ($result === FALSE)
-			return 0;
+			return false;
 
 		if ($result === TRUE)
 			return true;
@@ -52,7 +52,7 @@ class mysqlp extends mysqli
 
 		if (isset($returnValue))
 			return $returnValue;
-		return 0;
+		return false;
 	}
 
 	function queryRow($query, $ordered = false)

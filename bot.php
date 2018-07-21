@@ -321,7 +321,7 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 			$splitarr=array_merge($splitarr);
 			switch (strtolower($subtype)) {
 				case 'blockqq':
-					if (count($splitarr) < 2) {
+					if (count($splitarr) < 1) {
 						$text.="Usage: {$commandhelp['botadmin']['blockqq'][0]}.\n";
 						break;
 					}
@@ -329,13 +329,17 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 						$text.="It's not a true number.\n";
 						break;
 					}
-					if (!is_numeric($splitarr[1]) || strlen($splitarr[1]) > 3 || strlen($splitarr[1]) < 1) {
-						$text.="It's not a true silence time.\n";
-						break;
+					if (count($splitarr) > 1) {
+						if (!is_numeric($splitarr[1]) || strlen($splitarr[1]) > 3 || strlen($splitarr[1]) < 1) {
+							$text.="It's not a true silence time.\n";
+							break;
+						}
+						$silenceTime=(int)$splitarr[1];
+					} else {
+						$silenceTime=0;
 					}
 					$qqNumber=(int)$splitarr[0];
-					$silenceTime=(int)$splitarr[1];
-					$conn->exec("INSERT INTO bot_blockqqlist VALUES ({$_POST['ExternalId']},{$splitarr[0]},{$splitarr[1]})");
+					$conn->exec("INSERT INTO bot_blockqqlist VALUES ({$_POST['ExternalId']},{$qqNumber},{$silenceTime})");
 					$text.="OK.\n";
 					break;
 				case 'blocktext':
@@ -355,6 +359,7 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 					$qqNumber=(int)$splitarr[0];
 					$conn->exec("DELETE FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']} AND BlockQQ = {$qqNumber} LIMIT 1");
 					$text.="OK.\n";
+					break;
 				case 'unblocktext':
 					if (count($splitarr) < 1) {
 						$text.="Usage: {$commandhelp['botadmin']['unblocktext'][0]}.\n";
@@ -1022,6 +1027,12 @@ switch ($_POST['Event']) {
 			echo "<&&>SendClusterMessage<&>{$mainGroupNumber}<&>[@{$_POST['QQ']}] 欢迎来到 BanYou 玩家群，请将你的名片改为 osu! ID。\n要进入 BanYou，请在群文件下载客户端和使用指南。\n成功邀请一个进入 BanYou 的新玩家将赠送 14 天 BanYou SupportPlayer。\n";
 		} elseif ($blockTime=$conn->queryOne("SELECT BlockTime FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']} AND BlockQQ = {$_POST['QQ']} LIMIT 1")) {
 			Silence($_POST['ExternalId'],$_POST['QQ'],$blockTime*60);
+		}
+		break;
+	case 'AddToClusterNeedAuth':
+		$blockTime=$conn->queryOne("SELECT BlockTime FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']} AND BlockQQ = {$_POST['QQ']} LIMIT 1");
+		if ($blockTime === 0 || $blockTime === "0") {
+			echo "<&&>AgreeJoinCluster<&>{$_POST['ExternalId']}<&>{$_POST['QQ']}<&>false<&>因为你在机器人黑名单的列表中，所以你被拒绝加入群\n";
 		}
 		break;
 }
