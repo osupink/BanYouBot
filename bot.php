@@ -1,6 +1,7 @@
 <?php
 date_default_timezone_set('Asia/Shanghai');
 require_once('include.key.php');
+define('DefaultSilenceTime', 1);
 $commandhelp=array(
 'bindid'=>array('!bindid <BanYou Username>[:BanYou Password (Only private chat is available)]',' Bind your BanYou ID'),
 'roll'=>array('!roll [Number]','Roll a dice and get random result from 1 to number(default 100)'),
@@ -201,8 +202,14 @@ function CheckSilenceList($fullmessage) {
 				$lowerfullmessage=strtolower($fullmessage);
 				if ($conn->queryOne("SELECT 1 FROM bot_blocktextlist WHERE group_number = {$_POST['ExternalId']} AND LOCATE(BlockText,'{$lowerfullmessage}') > 0 LIMIT 1")) {
 					return 10;
-				} elseif ($blockTime=$conn->queryOne("SELECT BlockTime FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']} AND BlockQQ = {$_POST['QQ']} LIMIT 1")) {
-					return $blockTime;
+				} else {
+					$blockTime=$conn->queryOne("SELECT BlockTime FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']} AND BlockQQ = {$_POST['QQ']} LIMIT 1");
+					if ($blockTime === 0 || $blockTime === "0") {
+						$blockTime=DefaultSilenceTime;
+					}
+					if ($blockTime) {
+						return $blockTime;
+					}
 				}
 			}
 			return 0;
@@ -1025,8 +1032,14 @@ switch ($_POST['Event']) {
 		// 新成员入群
 		if ($_POST['ExternalId'] == $mainGroupNumber) {
 			echo "<&&>SendClusterMessage<&>{$mainGroupNumber}<&>[@{$_POST['QQ']}] 欢迎来到 BanYou 玩家群，请将你的名片改为 osu! ID。\n要进入 BanYou，请在群文件下载客户端和使用指南。\n成功邀请一个进入 BanYou 的新玩家将赠送 14 天 BanYou SupportPlayer。\n";
-		} elseif ($blockTime=$conn->queryOne("SELECT BlockTime FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']} AND BlockQQ = {$_POST['QQ']} LIMIT 1")) {
-			Silence($_POST['ExternalId'],$_POST['QQ'],$blockTime*60);
+		} else {
+			$blockTime=$conn->queryOne("SELECT BlockTime FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']} AND BlockQQ = {$_POST['QQ']} LIMIT 1");
+			if ($blockTime === 0 || $blockTime === "0") {
+				$blockTime=DefaultSilenceTime;
+			}
+			if ($blockTime) {
+				Silence($_POST['ExternalId'],$_POST['QQ'],$blockTime*60);
+			}
 		}
 		break;
 	case 'AddToClusterNeedAuth':
