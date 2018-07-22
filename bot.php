@@ -518,7 +518,7 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 			break;
 		case 'roll':
 			$maxNumber=100;
-			if (is_numeric($messagearr[1])) {
+			if (count($messagearr) > 1 && is_numeric($messagearr[1])) {
 				$maxNumber=$messagearr[1];
 			}
 			$randomNumber=GetRandomNumber($maxNumber);
