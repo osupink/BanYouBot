@@ -12,7 +12,7 @@ $commandhelp=array(
 'user'=>array('supporter'=>array('!user supporter <BanYou Username>','View supporter expirydate')),
 'bancoin'=>array('bill'=>array('!bancoin bill','Show my BanCoin bill'),'rank'=>array('!bancoin rank','Show player ranking (Only group chat is available)'),'showcard'=>array('!bancoin showcard','Show my card'),'balance'=>array('!bancoin balance','Query my balance'),'transfer'=>array('!bancoin transfer <QQ> <BanCoin>','Transfer BanCoin to other QQ')),
 'weather'=>array('!weather <City>','Weather Forecast'),
-'botadmin'=>array('blockqq'=>array('!botadmin blockqq <QQNumber> <Silence Time>','Add QQ into blocklist'),'blocktext'=>array('!botadmin blocktext <Text>','Add text into blocklist'),'unblockqq'=>array('!botadmin unblockqq <QQNumber>','Delete QQ from blocklist'),'unblocktext'=>array('!botadmin unblocktext <Text>','Delete text from blocklist'))
+'botadmin'=>array('kick'=>array('!botadmin kick <QQNumber>','Kick QQ'),'blockqq'=>array('!botadmin blockqq <QQNumber> <Silence Time>','Add QQ into blocklist'),'blocktext'=>array('!botadmin blocktext <Text>','Add text into blocklist'),'unblockqq'=>array('!botadmin unblockqq <QQNumber>','Delete QQ from blocklist'),'unblocktext'=>array('!botadmin unblocktext <Text>','Delete text from blocklist'))
 );
 function isBanSay() {
 	if (file_exists('bansay')) {
@@ -347,7 +347,6 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 					}
 					$qqNumber=(int)$splitarr[0];
 					$conn->exec("INSERT INTO bot_blockqqlist VALUES ({$_POST['ExternalId']},{$qqNumber},{$silenceTime})");
-					$text.="OK.\n";
 					break;
 				case 'blocktext':
 					if (count($splitarr) < 1) {
@@ -356,7 +355,6 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 					}
 					$blockstr=sqlstr(implode(' ',$splitarr));
 					$conn->exec("INSERT INTO bot_blocktextlist VALUES ({$_POST['ExternalId']},'{$blockstr}')");
-					$text.="OK.\n";
 					break;
 				case 'unblockqq':
 					if (count($splitarr) < 1) {
@@ -365,7 +363,6 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 					}
 					$qqNumber=(int)$splitarr[0];
 					$conn->exec("DELETE FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']} AND BlockQQ = {$qqNumber} LIMIT 1");
-					$text.="OK.\n";
 					break;
 				case 'unblocktext':
 					if (count($splitarr) < 1) {
@@ -374,11 +371,19 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 					}
 					$blockstr=sqlstr(implode(' ',$splitarr));
 					$conn->exec("DELETE FROM bot_blocktextlist WHERE group_number = {$_POST['ExternalId']} AND BlockText = '{$blockstr}' LIMIT 1");
-					$text.="OK.\n";
+					break;
+				case 'kick':
+					if (count($splitarr) < 1) {
+						$text.="Usage: {$commandhelp['botadmin']['kick'][0]}.\n";
+						break;
+					}
+					$qqNumber=(int)$splitarr[0];
+					echo "<&&>RemoveMember<&>{$_POST['ExternalId']}<&>{$qqNumber}<&>false\n";
 					break;
 				default:
-					break;
+					break 2;
 			}
+			$text.="OK.\n";
 			break;
 		default:
 			return 0;
