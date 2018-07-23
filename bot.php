@@ -228,6 +228,12 @@ function CheckSilenceList($fullmessage) {
 function Silence($groupNumber,$QQNumber,$silenceTime) {
 	echo "<&&>Silenced<&>{$groupNumber}<&>{$QQNumber}<&>{$silenceTime}\n";
 }
+function Announce($str) {
+	global $groupNumber;
+	foreach ($groupNumber as $value) {
+		echo "<&&>SendClusterMessage<&>{$value}<&>{$str}\n";
+	}
+}
 function CheckEvent() {
 	global $conn,$groupNumber,$devGroupNumber,$mainGroupNumber,$scoreTable,$highScoreTable;
 	if (file_exists('lastEventID')) {
@@ -549,6 +555,11 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 				$text.="[face13.gif]";
 			}
 			*/
+			break;
+		case 'announce':
+			if (count($messagearr) > 1) {
+				Announce($messagearr[1]);
+			}
 			break;
 		case 'bindid':
 			if ($messagecount < 2) {
@@ -1045,9 +1056,7 @@ switch ($_POST['Event']) {
 		if ($username === 0) {
 			$username="QQ:{$_POST['QQ']}";
 		}
-		foreach ($groupNumber as $value) {
-			echo "<&&>SendClusterMessage<&>{$value}<&>[BanCoin] {$username} 充值了 {$_POST['Fee']}.\n";
-		}
+		Announce("[BanCoin] {$username} 充值了 {$_POST['Fee']}.");
 		break;
 	// 接收到新的私聊(临时/好友)消息
 	case 'ReceiveTempIM':
