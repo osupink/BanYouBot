@@ -121,17 +121,6 @@ function TrimMultiSpace($str) {
 	$str=preg_replace('/ {2,}/', ' ', $str);
 	return $str;
 }
-function SaveCardImage($qq) {
-	if (!is_dir('card')) {
-		mkdir('card');
-	}
-	$img=imagecreatefrompng('card.png');
-	imagettftext($img,imagesx($img)/20,0,imagesx($img)/13.95,imagesy($img)/1.21,imagecolorallocate($img,255,255,255),'card.ttf',"226968 2646 {$qq}");
-	imagesavealpha($img,1);
-	$ret=imagepng($img,"card/{$qq}.png");
-	imagedestroy($img);
-	return $ret;
-}
 function GetCurFullPath($filename) {
 	return getcwd().DIRECTORY_SEPARATOR.$filename;
 }
@@ -630,16 +619,6 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 							$tmp.="修改余额失败";
 						}
 					}
-					break;
-				case 'showcard':
-					if (!file_exists("card/{$_POST['QQ']}.png")) {
-						if (!SaveCardImage($_POST['QQ'])) {
-							$text.="卡片生成失败.\n";
-							break;
-						}
-					}
-					$cardpath=GetCurFullPath("card/{$_POST['QQ']}.png");
-					$text.="[image={$cardpath}]\n";
 					break;
 				case 'balance':
 					if (count($splitarr) > 0) {
