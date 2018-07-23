@@ -4,6 +4,7 @@ require_once('include.key.php');
 define('MaxFriendsCount',32);
 $commandhelp=array(
 'bindid'=>array('!bindid <BanYou Username>[:BanYou Password (Only private chat is available)]',' Bind your BanYou ID'),
+'br'=>array('!br','BanYou Recent'),
 'roll'=>array('!roll [Number]','Roll a dice and get random result from 1 to number(default 100)'),
 'stats'=>array('!stats <Username>','Get specific player stats'),
 'friends'=>array('!friends [Username]','Get my BanYou friends list'),
@@ -192,9 +193,10 @@ function CheckCommandBlacklist($command,$admin=1) {
 		case 'help':
 		case 'roll':
 		case 'weather':
+		case 'br':
 			break;
 		case 'botadmin':
-			if (!$isMaster && !$conn->queryOne("SELECT 1 FROM bot_groupinfo WHERE group_number = {$_POST['ExternalId']} AND bot_fakeadmin = {$_POST['QQ']} LIMIT 1")) {
+			if (!$conn->queryOne("SELECT 1 FROM bot_groupinfo WHERE group_number = {$_POST['ExternalId']} AND bot_fakeadmin = {$_POST['QQ']} LIMIT 1")) {
 				return 1;
 			}
 			break;
