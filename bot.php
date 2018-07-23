@@ -168,17 +168,8 @@ function CheckCommandBlacklist($command,$admin=1) {
 		return 2;
 	}
 	switch ($command) {
-		case 'help':
-		case 'roll':
-		case 'weather':
-			break;
 		case 'botadmin':
 			if (!$isMaster && !$conn->queryOne("SELECT 1 FROM bot_groupinfo WHERE group_number = {$_POST['ExternalId']} AND bot_fakeadmin = {$_POST['QQ']} LIMIT 1")) {
-				return 1;
-			}
-			break;
-		case 'sleep':
-			if ($_POST['ExternalId'] == "707983601") {
 				return 1;
 			}
 			break;
