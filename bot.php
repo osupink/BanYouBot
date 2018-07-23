@@ -4,6 +4,7 @@ require_once('include.key.php');
 $commandhelp=array(
 'bindid'=>array('!bindid <BanYou Username>[:BanYou Password (Only private chat is available)]',' Bind your BanYou ID'),
 'roll'=>array('!roll [Number]','Roll a dice and get random result from 1 to number(default 100)'),
+'stats'=>array('!stats <Username>','Get specific player stats'),
 'bp'=>array('!bp <BanYou Username> [Mode:0 (STD), 1 (Taiko), 2 (Catch The Beat), 3 (osu!mania)]','Show player best performance list'),
 'buy'=>array(''=>array('!buy <Goods Name>','Buy goods'),'bill'=>array('!buy bill','Show my buy bill'),'list'=>array('!buy list','Show goods list'),'mygoods'=>array('!buy mygoods','Show my goods list'),'sendgift'=>array('!buy sendgift <QQ> <Goods Name> <Count>','Send gift to other QQ')),
 'sleep'=>array('!sleep [Time: Default = 12 Hours, Minute(s) <= 1440]','Switch to sleep mode'),
@@ -99,6 +100,28 @@ function GetRandomNumber($maxNumber) {
 	}
 	$randomNumber=mt_rand(1,$maxNumber);
 	return $randomNumber;
+}
+function GetPlayerRankByUserID($mode,$userid) {
+	global $conn,$userStatsTable;
+	setGameMode($mode);
+	$scoreType=($mode == 2) ? 'ranked_score' : 'rank_score';
+	$playerPPScore=$conn->queryOne("SELECT {$scoreType} FROM {$userStatsTable} WHERE user_id = {$userid} LIMIT 1");
+	if (!empty($playerPPScore)) {
+		$rank=$conn->queryOne("SELECT count(*)+1 FROM {$userStatsTable} us JOIN osu_users u USING (user_id) WHERE us.user_id != {$userid} AND us.{$scoreType} > {$playerPPScore} AND NOT EXISTS (SELECT 1 FROM osu_user_banhistory WHERE user_id = us.user_id LIMIT 1)");
+		if (!empty($rank)) {
+			return $rank;
+		}
+	}
+	return 0;
+}
+function GetUserIDByUsername($username) {
+	global $conn;
+	$username=sqlstr($username);
+	$userid=$conn->queryOne("SELECT user_id FROM osu_users WHERE username = '{$username}' LIMIT 1");
+	if ($userid !== 0) {
+		return $userid;
+	}
+	return 0;
 }
 function isGroup($isGroup) {
 	return (($isGroup === 1) ? 1 : 0);
@@ -925,6 +948,31 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 					$text.="，最近的降水地区离这里有 {$weather['nearest']['distance']} 公里远，降水量为 {$weather['nearest']['intensity']}";
 				}
 				$text.=".\n";
+			}
+			break;
+		case 'stat':
+		case 'stats':
+			if ($messagecount > 1) {
+				$userid=GetUserIDByUsername($messagearr[1]);
+				if ($userid === 0) {
+					$text.="User not found.\n";
+					break;
+				}
+				$rank=GetPlayerRankByUserID(0,$userid);
+				if ($rank === 0) {
+					$text.="User not found.\n";
+					break;
+				}
+				list($score,$playcount,$level,$accuracy)=$conn->queryRow("SELECT ranked_score, playcount, level, accuracy FROM osu_user_stats WHERE user_id = {$userid} LIMIT 1",1);
+				$score=number_format($score);
+				$level=floor($level);
+				$accuracy*=100;
+				$text.="Stats for {$messagearr[1]}:\n";
+				$text.="Score: {$score} (#{$rank})\n";
+				$text.="Plays: {$playcount} (lv{$level})\n";
+				$text.="Accuracy: {$accuracy}%\n";
+			} else {
+				$text.="No user specified.\n";
 			}
 			break;
 		default:
