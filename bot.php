@@ -1,10 +1,12 @@
 <?php
 date_default_timezone_set('Asia/Shanghai');
 require_once('include.key.php');
+define('MaxFriendsCount',32);
 $commandhelp=array(
 'bindid'=>array('!bindid <BanYou Username>[:BanYou Password (Only private chat is available)]',' Bind your BanYou ID'),
 'roll'=>array('!roll [Number]','Roll a dice and get random result from 1 to number(default 100)'),
 'stats'=>array('!stats <Username>','Get specific player stats'),
+'friends'=>array('!friends [Username]','Get my BanYou friends list'),
 'bp'=>array('!bp <BanYou Username> [Mode:0 (STD), 1 (Taiko), 2 (Catch The Beat), 3 (osu!mania)]','Show player best performance list'),
 'buy'=>array(''=>array('!buy <Goods Name>','Buy goods'),'bill'=>array('!buy bill','Show my buy bill'),'list'=>array('!buy list','Show goods list'),'mygoods'=>array('!buy mygoods','Show my goods list'),'sendgift'=>array('!buy sendgift <QQ> <Goods Name> <Count>','Send gift to other QQ')),
 'sleep'=>array('!sleep [Time: Default = 12 Hours, Minute(s) <= 1440]','Switch to sleep mode'),
@@ -974,6 +976,35 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 			} else {
 				$text.="No user specified.\n";
 			}
+			break;
+		case 'friend':
+		case 'friends':
+			$username=isBindID($_POST['QQ'],$text);
+			if ($username === 0) {
+				break;
+			}
+			$userid=GetUserIDByUsername($username);
+			if ($messagecount < 2) {
+				$friendsList=$conn->queryAll("SELECT u.username,IF((SELECT 1 FROM osu_friends WHERE user_id = f.zebra_id AND zebra_id = {$userid} LIMIT 1),1,0) as mu FROM osu_friends f JOIN osu_users u ON u.user_id = f.zebra_id WHERE f.user_id = {$userid} ORDER BY u.user_lastvisit DESC LIMIT ".MaxFriendsCount);
+				if (count($friendsList) < 1) {
+					$text.="You haven't added any friends yet!\n";
+					break;
+				}
+				$text.="{$username}'s friend(s): ";
+				foreach ($friendsList as $value) {
+					if ($value['mu'] == 1) {
+						$text.="※ ";
+					}
+					$text.=$value['username'];
+					$text.=", ";
+				}
+			} else {
+				$messagearr[1]=sqlstr($messagearr[1]);
+				$isAdded=$conn->queryOne("SELECT 1 FROM osu_friends f JOIN osu_users u ON username = '{$messagearr[1]}' WHERE f.user_id = {$userid} AND f.zebra_id = u.user_id LIMIT 1");
+				$isBeAdded=$conn->queryOne("SELECT 1 FROM osu_friends f JOIN osu_users u ON username = '{$messagearr[1]}' WHERE u.user_id = f.user_id AND f.zebra_id = {$userid} LIMIT 1");
+				$text.=(!empty($isAdded) ? "You've added him/her as a friend" : "You haven't added him/her as a friend yet").', '.(!empty($isBeAdded) ? "he/she has added you as a friend" : "he/she hasn't added you as a friend yet").'.';
+			}
+			$text.="\n";
 			break;
 		default:
 			return 0;
