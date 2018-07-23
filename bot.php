@@ -1072,17 +1072,16 @@ switch ($_POST['Event']) {
 		break;
 	case 'AddedToCluster':
 		// 新成员入群
+		$blockTime=$conn->queryOne("SELECT BlockTime FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']} AND BlockQQ = {$_POST['QQ']} LIMIT 1");
+		if ($blockTime === 0 || $blockTime === "0") {
+			Kick($_POST['ExternalId'],$_POST['QQ']);
+			break;
+		}
+		if ($blockTime) {
+			Silence($_POST['ExternalId'],$_POST['QQ'],$blockTime*60);
+		}
 		if ($_POST['ExternalId'] == $mainGroupNumber) {
 			echo "<&&>SendClusterMessage<&>{$mainGroupNumber}<&>[@{$_POST['QQ']}] 欢迎来到 BanYou 玩家群，请将你的名片改为 osu! ID。\n要进入 BanYou，请在群文件下载客户端和使用指南。\n成功邀请一个进入 BanYou 的新玩家将赠送 14 天 BanYou SupportPlayer。\n";
-		} else {
-			$blockTime=$conn->queryOne("SELECT BlockTime FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']} AND BlockQQ = {$_POST['QQ']} LIMIT 1");
-			if ($blockTime === 0 || $blockTime === "0") {
-				Kick($_POST['ExternalId'],$_POST['QQ']);
-				break;
-			}
-			if ($blockTime) {
-				Silence($_POST['ExternalId'],$_POST['QQ'],$blockTime*60);
-			}
 		}
 		break;
 	case 'AddToClusterNeedAuth':
