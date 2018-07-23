@@ -5,14 +5,14 @@ define('MaxFriendsCount',32);
 $commandhelp=array(
 'bindid'=>array('!bindid <BanYou Username>[:BanYou Password (Only private chat is available)]',' Bind your BanYou ID'),
 'br'=>array('!br','BanYou Recent'),
+'bp'=>array('!bp <BanYou Username> [Mode:0 (STD), 1 (Taiko), 2 (Catch The Beat), 3 (osu!mania)]','Show player best performance list'),
 'roll'=>array('!roll [Number]','Roll a dice and get random result from 1 to number(default 100)'),
 'stats'=>array('!stats <Username>','Get specific player stats'),
 'friends'=>array('!friends [Username]','Get my BanYou friends list'),
-'bp'=>array('!bp <BanYou Username> [Mode:0 (STD), 1 (Taiko), 2 (Catch The Beat), 3 (osu!mania)]','Show player best performance list'),
+'user'=>array('supporter'=>array('!user supporter <BanYou Username>','View supporter expirydate')),
 'buy'=>array(''=>array('!buy <Goods Name>','Buy goods'),'bill'=>array('!buy bill','Show my buy bill'),'list'=>array('!buy list','Show goods list'),'mygoods'=>array('!buy mygoods','Show my goods list'),'sendgift'=>array('!buy sendgift <QQ> <Goods Name> <Count>','Send gift to other QQ')),
 'sleep'=>array('!sleep [Time: Default = 12 Hours, Minute(s) <= 1440]','Switch to sleep mode'),
 'checkin'=>array('!checkin','Checkin to get a prize'),
-'user'=>array('supporter'=>array('!user supporter <BanYou Username>','View supporter expirydate')),
 'bancoin'=>array('bill'=>array('!bancoin bill','Show my BanCoin bill'),'rank'=>array('!bancoin rank','Show player ranking (Only group chat is available)'),'showcard'=>array('!bancoin showcard','Show my card'),'balance'=>array('!bancoin balance','Query my balance'),'transfer'=>array('!bancoin transfer <QQ> <BanCoin>','Transfer BanCoin to other QQ')),
 'weather'=>array('!weather <City>','Weather Forecast'),
 'botadmin'=>array('kick'=>array('!botadmin kick <QQNumber>','Kick QQ'),'blockqq'=>array('!botadmin blockqq <QQNumber> [Silence Time]','Add QQ into blocklist'),'blocktext'=>array('!botadmin blocktext <Text>','Add text into blocklist'),'unblockqq'=>array('!botadmin unblockqq <QQNumber>','Delete QQ from blocklist'),'unblocktext'=>array('!botadmin unblocktext <Text>','Delete text from blocklist'))
@@ -1013,6 +1013,9 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 			$text.="\n";
 			break;
 		case 'br':
+			if ($messagecount > 1) {
+				break;
+			}
 			$username=isBindID($_POST['QQ'],$text);
 			if ($username === 0) {
 				break;
