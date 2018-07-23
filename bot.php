@@ -957,20 +957,22 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 			}
 			break;
 		case 'weather':
-			if ($messagecount > 1) {
-				$weather=GetNormalWeather($messagearr[1]);
-				if ($weather == 0) {
-					$text.="无法获取城市或天气数据.\n";
-					break;
-				}
-				$skyconlist=array('CLEAR_DAY'=>'晴天','CLEAR_NIGHT'=>'晴夜','PARTLY_CLOUDY_DAY'=>'多云','PARTLY_CLOUDY_NIGHT'=>'多云','CLOUDY'=>'阴','RAIN'=>'雨','SNOW'=>'雪','WIND'=>'风','FOG'=>'雾','HAZE'=>'霾','SLEET'=>'冻雨');
-				$weather['skycon']=$skyconlist[strtoupper($weather['skycon'])];
-				$text.="{$messagearr[1]}实时天气：{$weather['skycon']}，温度：{$weather['temperature']}°，风速：{$weather['windspeed']} km/h，PM2.5：{$weather['pm25']}，云量：{$weather['cloudrate']}，相对湿度：{$weather['humidity']}";
-				if (isset($weather['nearest'])) {
-					$text.="，最近的降水地区离这里有 {$weather['nearest']['distance']} 公里远，降水量为 {$weather['nearest']['intensity']}";
-				}
-				$text.=".\n";
+			if ($messagecount < 2) {
+				$text.="Usage: {$commandhelp['weather'][0]}";
+				break;
 			}
+			$weather=GetNormalWeather($messagearr[1]);
+			if ($weather == 0) {
+				$text.="无法获取城市或天气数据.\n";
+				break;
+			}
+			$skyconlist=array('CLEAR_DAY'=>'晴天','CLEAR_NIGHT'=>'晴夜','PARTLY_CLOUDY_DAY'=>'多云','PARTLY_CLOUDY_NIGHT'=>'多云','CLOUDY'=>'阴','RAIN'=>'雨','SNOW'=>'雪','WIND'=>'风','FOG'=>'雾','HAZE'=>'霾','SLEET'=>'冻雨');
+			$weather['skycon']=$skyconlist[strtoupper($weather['skycon'])];
+			$text.="{$messagearr[1]}实时天气：{$weather['skycon']}，温度：{$weather['temperature']}°，风速：{$weather['windspeed']} km/h，PM2.5：{$weather['pm25']}，云量：{$weather['cloudrate']}，相对湿度：{$weather['humidity']}";
+			if (isset($weather['nearest'])) {
+				$text.="，最近的降水地区离这里有 {$weather['nearest']['distance']} 公里远，降水量为 {$weather['nearest']['intensity']}";
+			}
+			$text.=".\n";
 			break;
 		case 'stat':
 		case 'stats':
