@@ -186,7 +186,7 @@ function CheckCommandBlacklist($command,$admin=1) {
 		case 'getkey':
 		case 'bansay':
 		case 'fs':
-		case 'announce'
+		case 'announce':
 			return 1;
 			break;
 		default:
