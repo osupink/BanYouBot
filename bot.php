@@ -1,7 +1,6 @@
 <?php
 date_default_timezone_set('Asia/Shanghai');
 require_once('include.key.php');
-define('DefaultSilenceTime', 1);
 $commandhelp=array(
 'bindid'=>array('!bindid <BanYou Username>[:BanYou Password (Only private chat is available)]',' Bind your BanYou ID'),
 'roll'=>array('!roll [Number]','Roll a dice and get random result from 1 to number(default 100)'),
@@ -207,7 +206,8 @@ function CheckSilenceList($fullmessage) {
 				} else {
 					$blockTime=$conn->queryOne("SELECT BlockTime FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']} AND BlockQQ = {$_POST['QQ']} LIMIT 1");
 					if ($blockTime === 0 || $blockTime === "0") {
-						$blockTime=DefaultSilenceTime;
+						Kick($_POST['ExternalId'],$_POST['QQ']);
+						return -1;
 					}
 					if ($blockTime) {
 						return $blockTime;
@@ -219,6 +219,9 @@ function CheckSilenceList($fullmessage) {
 }
 function Silence($groupNumber,$QQNumber,$silenceTime) {
 	echo "<&&>Silenced<&>{$groupNumber}<&>{$QQNumber}<&>{$silenceTime}\n";
+}
+function Kick($groupNumber,$QQNumber) {
+	echo "<&&>RemoveMember<&>{$groupNumber}<&>{$qqNumber}<&>false\n";
 }
 function Announce($str) {
 	global $groupNumber;
@@ -388,7 +391,7 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 						break;
 					}
 					$qqNumber=(int)isAT($splitarr[0]);
-					echo "<&&>RemoveMember<&>{$_POST['ExternalId']}<&>{$qqNumber}<&>false\n";
+					Kick($_POST['ExternalId'],$qqNumber);
 					break;
 				default:
 					break 2;
@@ -955,8 +958,10 @@ function HandleMessage($isGroup,$messages) {
 		if (isGroup($isGroup)) {
 			$isSilence=CheckSilenceList($fullmessage);
 			if ($isSilence !== 0) {
-				$isSilence*=60;
-				Silence($_POST['ExternalId'],$_POST['QQ'],$isSilence);
+				if ($isSilence !== -1) {
+					$isSilence*=60;
+					Silence($_POST['ExternalId'],$_POST['QQ'],$isSilence);
+				}
 				die();
 			}
 		}
@@ -1072,7 +1077,8 @@ switch ($_POST['Event']) {
 		} else {
 			$blockTime=$conn->queryOne("SELECT BlockTime FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']} AND BlockQQ = {$_POST['QQ']} LIMIT 1");
 			if ($blockTime === 0 || $blockTime === "0") {
-				$blockTime=DefaultSilenceTime;
+				Kick($_POST['ExternalId'],$_POST['QQ']);
+				break;
 			}
 			if ($blockTime) {
 				Silence($_POST['ExternalId'],$_POST['QQ'],$blockTime*60);
