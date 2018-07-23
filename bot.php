@@ -221,7 +221,7 @@ function Silence($groupNumber,$QQNumber,$silenceTime) {
 	echo "<&&>Silenced<&>{$groupNumber}<&>{$QQNumber}<&>{$silenceTime}\n";
 }
 function Kick($groupNumber,$QQNumber) {
-	echo "<&&>RemoveMember<&>{$groupNumber}<&>{$qqNumber}<&>false\n";
+	echo "<&&>RemoveMember<&>{$groupNumber}<&>{$QQNumber}<&>false\n";
 }
 function Announce($str) {
 	global $groupNumber;
