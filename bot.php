@@ -104,6 +104,16 @@ function GetRandomNumber($maxNumber) {
 function isGroup($isGroup) {
 	return (($isGroup === 1) ? 1 : 0);
 }
+function isAT($str) {
+	if (preg_match('/^\[@(\d*)\]$/', $str, $matches)) {
+		return (int)$matches[1];
+	}
+	return $str;
+}
+function TrimMultiSpace($str) {
+	$str=preg_replace('/ {2,}/', ' ', $str);
+	return $str;
+}
 function SaveCardImage($qq) {
 	if (!is_dir('card')) {
 		mkdir('card');
@@ -307,6 +317,7 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 			if (!isset($splitarr[2])) {
 				$splitarr[2]=10;
 			}
+			$splitarr[1]=isAT($splitarr[1]);
 			for ($i=0;$i<$splitarr[2];$i++) {
 				Silence($_POST['ExternalId'],$splitarr[1],600);
 				Silence($_POST['ExternalId'],$splitarr[1],0);
@@ -332,8 +343,9 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 						$text.="Usage: {$commandhelp['botadmin']['blockqq'][0]}.\n";
 						break;
 					}
+					$splitarr[0]=isAT($splitarr[0]);
 					if (!is_numeric($splitarr[0]) || strlen($splitarr[0]) > 11 || strlen($splitarr[0]) < 5) {
-						$text.="It's not a true number.\n";
+						$text.="It's not a true QQ number.\n";
 						break;
 					}
 					if (count($splitarr) > 1) {
@@ -361,7 +373,7 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 						$text.="Usage: {$commandhelp['botadmin']['unblockqq'][0]}.\n";
 						break;
 					}
-					$qqNumber=(int)$splitarr[0];
+					$qqNumber=(int)isAT($splitarr[0]);
 					$conn->exec("DELETE FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']} AND BlockQQ = {$qqNumber} LIMIT 1");
 					break;
 				case 'unblocktext':
@@ -377,7 +389,7 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 						$text.="Usage: {$commandhelp['botadmin']['kick'][0]}.\n";
 						break;
 					}
-					$qqNumber=(int)$splitarr[0];
+					$qqNumber=(int)isAT($splitarr[0]);
 					echo "<&&>RemoveMember<&>{$_POST['ExternalId']}<&>{$qqNumber}<&>false\n";
 					break;
 				default:
@@ -580,6 +592,11 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 			$text.="\n";
 			break;
 		case 'bancoin':
+			$username=GetUsernameByQQ($_POST['QQ']);
+			if ($username === 0) {
+				$text.="该指令需要绑定 BanYou 账号才能继续使用，请使用 !bindid 指令来进行绑定.\n";
+				break;
+			}
 			if (count($splitarr) < 2) {
 				foreach ($commandhelp['bancoin'] as $value) {
 					$text.="{$value[0]} - {$value[1]}\n";
@@ -593,6 +610,7 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 			switch (strtolower($subtype)) {
 				case 'change':
 					if (count($splitarr) > 1 && $isMaster) {
+						$splitarr[0]=isAT($splitarr[0]);
 						if (AddMoneyEvent('Change',$splitarr[0],$splitarr[1])) {
 							$tmp.="修改余额成功";
 						} else {
@@ -611,11 +629,19 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 					$text.="[image={$cardpath}]\n";
 					break;
 				case 'balance':
-					$curMoney=GetCurMoney($_POST['QQ']);
+					if (count($splitarr) > 0) {
+						$splitarr[0]=isAT($splitarr[0]);
+					}
+					if ($isMaster && count($splitarr) > 0 && is_numeric($splitarr[0])) {
+						$username=GetUsernameByQQ($splitarr[0]);
+						$curMoney=GetCurMoney($splitarr[0]);
+					} else {
+						$curMoney=GetCurMoney($_POST['QQ']);
+					}
 					if ($curMoney == 0) {
 						$tmp.='你没有余额或是余额为 0';
 					} else {
-						$tmp.="你的余额为 {$curMoney}";
+						$tmp.="{$username} 的余额为 {$curMoney}";
 					}
 					break;
 				case 'rank':
@@ -661,6 +687,7 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 						$text.="Usage: {$commandhelp['bancoin']['transfer'][0]}.\n";
 						break;
 					}
+					$splitarr[0]=isAT($splitarr[0]);
 					if (is_numeric($splitarr[0]) && (is_numeric($splitarr[1]) || is_float($splitarr[1]))) {
 						if ($splitarr[1] <= 0) {
 							$tmp.="转账金额必须大于 0";
@@ -752,6 +779,9 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 					$text.="你没有任何库存商品";
 					break;
 				case 'sendgift':
+					if (count($splitarr) > 4) {
+						$splitarr[2]=isAT($splitarr[2]);
+					}
 					if (!(count($splitarr) > 4 && is_numeric($splitarr[2]) && is_numeric($splitarr[4]))) {
 						$text.="Usage: {$commandhelp['buy']['sendgift'][0]}";
 						break;
@@ -766,7 +796,7 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 						$text.="赠送数量必须大于 0";
 						break;
 					} elseif (empty($curGoodsStoreID)) {
-						$text.="商店内没有这件商品";
+						$text.="你没有这件商品";
 						break;
 					} elseif ($splitarr[4] > $curGoodsCount) {
 						$text.="你的库存不足";
@@ -929,6 +959,7 @@ function HandleMessage($isGroup,$messages) {
 		}
 		$message=(substr($fullmessage,0,1) === '!') ? substr($fullmessage,1) : "";
 		if (!empty($message)) {
+			$message=TrimMultiSpace($message);
 			$splitarr=explode(' ', $message);
 			$messagearr=explode(' ',$message,2);
 			$messagecount=count($messagearr);
