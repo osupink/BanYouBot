@@ -109,6 +109,15 @@ function isAT($str) {
 	}
 	return $str;
 }
+function isBindID($QQNumber) {
+	global $text;
+	$username=GetUsernameByQQ($QQNumber);
+	if ($username === 0) {
+		$text.="该指令需要绑定 BanYou 账号才能继续使用，请使用 !bindid 指令来进行绑定.\n";
+		return 0;
+	}
+	return $username;
+}
 function TrimMultiSpace($str) {
 	$str=preg_replace('/ {2,}/', ' ', $str);
 	return $str;
@@ -598,9 +607,8 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 			$text.="\n";
 			break;
 		case 'bancoin':
-			$username=GetUsernameByQQ($_POST['QQ']);
+			$username=isBindID($_POST['QQ']);
 			if ($username === 0) {
-				$text.="该指令需要绑定 BanYou 账号才能继续使用，请使用 !bindid 指令来进行绑定.\n";
 				break;
 			}
 			if (count($splitarr) < 2) {
@@ -735,9 +743,8 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 				}
 				break;
 			}
-			$username=GetUsernameByQQ($_POST['QQ']);
+			$username=isBindID($_POST['QQ']);
 			if ($username === 0) {
-				$text.="该指令需要绑定 BanYou 账号才能继续使用，请使用 !bindid 指令来进行绑定.\n";
 				break;
 			}
 			switch (strtolower($splitarr[1])) {
@@ -883,9 +890,8 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 			$text.=".\n";
 			break;
 		case 'checkin':
-			$username=GetUsernameByQQ($_POST['QQ']);
+			$username=isBindID($_POST['QQ']);
 			if ($username === 0) {
-				$text.="该指令需要绑定 BanYou 账号才能继续使用，请使用 !bindid 指令来进行绑定.\n";
 				break;
 			}
 			$checkinType='Checkin';
