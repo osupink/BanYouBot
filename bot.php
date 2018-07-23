@@ -15,7 +15,7 @@ $commandhelp=array(
 'checkin'=>array('!checkin','Checkin to get a prize'),
 'bancoin'=>array('bill'=>array('!bancoin bill','Show my BanCoin bill'),'rank'=>array('!bancoin rank','Show player ranking (Only group chat is available)'),'showcard'=>array('!bancoin showcard','Show my card'),'balance'=>array('!bancoin balance','Query my balance'),'transfer'=>array('!bancoin transfer <QQ> <BanCoin>','Transfer BanCoin to other QQ')),
 'weather'=>array('!weather <City>','Weather Forecast'),
-'botadmin'=>array('kick'=>array('!botadmin kick <QQNumber>','Kick QQ'),'blockqq'=>array('!botadmin blockqq <QQNumber> [Silence Time]','Add QQ into blocklist'),'blocktext'=>array('!botadmin blocktext <Text>','Add text into blocklist'),'unblockqq'=>array('!botadmin unblockqq <QQNumber>','Delete QQ from blocklist'),'unblocktext'=>array('!botadmin unblocktext <Text>','Delete text from blocklist'))
+'botadmin'=>array('kick'=>array('!botadmin kick <QQNumber>','Kick QQ'),'blockqq'=>array('!botadmin blockqq <QQNumber> [Silence Time]','Add QQ into blocklist'),'blocktext'=>array('!botadmin blocktext <Text>','Add text into blocklist'),'unblockqq'=>array('!botadmin unblockqq <QQNumber>','Delete QQ from blocklist'),'unblocktext'=>array('!botadmin unblocktext <Text>','Delete text from blocklist'),'changecard'=>array('!botadmin changecard [QQNumber] <Card>','Change QQ/Robot\'sCard'))
 );
 function isBanSay() {
 	if (file_exists('bansay')) {
@@ -257,6 +257,9 @@ function Announce($str) {
 		echo "<&&>SendClusterMessage<&>{$value}<&>{$str}\n";
 	}
 }
+function ChangeCard($QQNumber,$card) {
+	echo "<&&>ModifyMemberCard<&>{$_POST['ExternalId']}<&>{$QQNumber}<&>{$card}\n";
+}
 function CheckEvent() {
 	global $conn,$groupNumber,$devGroupNumber,$mainGroupNumber,$scoreTable,$highScoreTable;
 	if (file_exists('lastEventID')) {
@@ -420,6 +423,17 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 					}
 					$qqNumber=(int)isAT($splitarr[0]);
 					Kick($_POST['ExternalId'],$qqNumber);
+					break;
+				case 'changecard':
+					if (count($splitarr) < 1) {
+						$text.="Usage: {$commandhelp['botadmin']['changecard'][0]}.\n";
+						break;
+					}
+					if (count($splitarr) < 2) {
+						ChangeCard($_POST['RobotQQ'],$splitarr[0]);
+					} elseif (is_numeric($splitarr[0])) {
+						ChangeCard($splitarr[0],$splitarr[1]);
+					}
 					break;
 				default:
 					break 2;
