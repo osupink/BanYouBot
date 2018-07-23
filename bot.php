@@ -228,18 +228,17 @@ function CheckSilenceList($fullmessage) {
 		*/
 		default:
 			if ($_POST['QQ'] != $masterQQ && !$conn->queryOne("SELECT 1 FROM bot_groupinfo WHERE group_number = {$_POST['ExternalId']} AND bot_fakeadmin = {$_POST['QQ']} LIMIT 1")) {
+				$blockTime=$conn->queryOne("SELECT BlockTime FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']} AND BlockQQ = {$_POST['QQ']} LIMIT 1");
+				if ($blockTime === 0 || $blockTime === "0") {
+					Kick($_POST['ExternalId'],$_POST['QQ']);
+					return -1;
+				}
+				if ($blockTime) {
+					return $blockTime;
+				}
 				$lowerfullmessage=strtolower($fullmessage);
 				if ($conn->queryOne("SELECT 1 FROM bot_blocktextlist WHERE group_number = {$_POST['ExternalId']} AND LOCATE(BlockText,'{$lowerfullmessage}') > 0 LIMIT 1")) {
 					return 10;
-				} else {
-					$blockTime=$conn->queryOne("SELECT BlockTime FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']} AND BlockQQ = {$_POST['QQ']} LIMIT 1");
-					if ($blockTime === 0 || $blockTime === "0") {
-						Kick($_POST['ExternalId'],$_POST['QQ']);
-						return -1;
-					}
-					if ($blockTime) {
-						return $blockTime;
-					}
 				}
 			}
 			return 0;
