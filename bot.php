@@ -14,7 +14,7 @@ $commandhelp=array(
 'user'=>array('supporter'=>array('!user supporter <BanYou Username>','View supporter expirydate')),
 'bancoin'=>array('bill'=>array('!bancoin bill','Show my BanCoin bill'),'rank'=>array('!bancoin rank','Show player ranking (Only group chat is available)'),'showcard'=>array('!bancoin showcard','Show my card'),'balance'=>array('!bancoin balance','Query my balance'),'transfer'=>array('!bancoin transfer <QQ> <BanCoin>','Transfer BanCoin to other QQ')),
 'weather'=>array('!weather <City>','Weather Forecast'),
-'botadmin'=>array('kick'=>array('!botadmin kick <QQNumber>','Kick QQ'),'blockqq'=>array('!botadmin blockqq <QQNumber> <Silence Time>','Add QQ into blocklist'),'blocktext'=>array('!botadmin blocktext <Text>','Add text into blocklist'),'unblockqq'=>array('!botadmin unblockqq <QQNumber>','Delete QQ from blocklist'),'unblocktext'=>array('!botadmin unblocktext <Text>','Delete text from blocklist'))
+'botadmin'=>array('kick'=>array('!botadmin kick <QQNumber>','Kick QQ'),'blockqq'=>array('!botadmin blockqq <QQNumber> [Silence Time]','Add QQ into blocklist'),'blocktext'=>array('!botadmin blocktext <Text>','Add text into blocklist'),'unblockqq'=>array('!botadmin unblockqq <QQNumber>','Delete QQ from blocklist'),'unblocktext'=>array('!botadmin unblocktext <Text>','Delete text from blocklist'))
 );
 function isBanSay() {
 	if (file_exists('bansay')) {
@@ -189,6 +189,8 @@ function CheckCommandBlacklist($command,$admin=1) {
 		return 2;
 	}
 	switch ($command) {
+		case 'help':
+		case 'roll':
 		case 'botadmin':
 			if (!$isMaster && !$conn->queryOne("SELECT 1 FROM bot_groupinfo WHERE group_number = {$_POST['ExternalId']} AND bot_fakeadmin = {$_POST['QQ']} LIMIT 1")) {
 				return 1;
@@ -1005,6 +1007,13 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 				$text.=(!empty($isAdded) ? "You've added him/her as a friend" : "You haven't added him/her as a friend yet").', '.(!empty($isBeAdded) ? "he/she has added you as a friend" : "he/she hasn't added you as a friend yet").'.';
 			}
 			$text.="\n";
+			break;
+		case 'br':
+			$username=isBindID($_POST['QQ'],$text);
+			if ($username === 0) {
+				break;
+			}
+			$userid=GetUserIDByUsername($username);
 			break;
 		default:
 			return 0;
