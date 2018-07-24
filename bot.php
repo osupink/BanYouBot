@@ -244,10 +244,22 @@ function CheckSilenceList($fullmessage) {
 			return 0;
 	}
 }
+function isAnonymous($QQNumber) {
+	if ($QQNumber == 80000000) {
+		return 1;
+	}
+	return 0;
+}
 function Silence($groupNumber,$QQNumber,$silenceTime) {
+	if (isAnonymous($QQNumber)) {
+		return;
+	}
 	echo "<&&>Silenced<&>{$groupNumber}<&>{$QQNumber}<&>{$silenceTime}\n";
 }
 function Kick($groupNumber,$QQNumber) {
+	if (isAnonymous($QQNumber)) {
+		return;
+	}
 	echo "<&&>RemoveMember<&>{$groupNumber}<&>{$QQNumber}<&>false\n";
 }
 function Announce($str) {
@@ -257,6 +269,9 @@ function Announce($str) {
 	}
 }
 function ChangeCard($QQNumber,$card) {
+	if (isAnonymous($QQNumber)) {
+		return;
+	}
 	echo "<&&>ModifyMemberCard<&>{$_POST['ExternalId']}<&>{$QQNumber}<&>{$card}\n";
 }
 function CheckEvent() {
