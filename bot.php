@@ -380,7 +380,7 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 						break 2;
 					}
 					if (count($splitarr) > 1) {
-						if (!is_numeric($splitarr[1]) || strlen($splitarr[1]) > 3 || strlen($splitarr[1]) < 1) {
+						if (!is_numeric($splitarr[1]) || strlen($splitarr[1]) > 4 || strlen($splitarr[1]) < 1) {
 							$text.="It's not a true silence time.\n";
 							break 2;
 						}
