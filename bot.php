@@ -372,17 +372,17 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 				case 'blockqq':
 					if (count($splitarr) < 1) {
 						$text.="Usage: {$commandhelp['botadmin']['blockqq'][0]}.\n";
-						break;
+						break 2;
 					}
 					$splitarr[0]=isAT($splitarr[0]);
 					if (!is_numeric($splitarr[0]) || strlen($splitarr[0]) > 11 || strlen($splitarr[0]) < 5) {
 						$text.="It's not a true QQ number.\n";
-						break;
+						break 2;
 					}
 					if (count($splitarr) > 1) {
 						if (!is_numeric($splitarr[1]) || strlen($splitarr[1]) > 3 || strlen($splitarr[1]) < 1) {
 							$text.="It's not a true silence time.\n";
-							break;
+							break 2;
 						}
 						$silenceTime=(int)$splitarr[1];
 					} else {
@@ -394,7 +394,7 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 				case 'blocktext':
 					if (count($splitarr) < 1) {
 						$text.="Usage: {$commandhelp['botadmin']['blocktext'][0]}.\n";
-						break;
+						break 2;
 					}
 					$blockstr=sqlstr(implode(' ',$splitarr));
 					$conn->exec("INSERT INTO bot_blocktextlist VALUES ({$_POST['ExternalId']},'{$blockstr}')");
@@ -402,7 +402,7 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 				case 'unblockqq':
 					if (count($splitarr) < 1) {
 						$text.="Usage: {$commandhelp['botadmin']['unblockqq'][0]}.\n";
-						break;
+						break 2;
 					}
 					$qqNumber=(int)isAT($splitarr[0]);
 					$conn->exec("DELETE FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']} AND BlockQQ = {$qqNumber} LIMIT 1");
@@ -410,7 +410,7 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 				case 'unblocktext':
 					if (count($splitarr) < 1) {
 						$text.="Usage: {$commandhelp['botadmin']['unblocktext'][0]}.\n";
-						break;
+						break 2;
 					}
 					$blockstr=sqlstr(implode(' ',$splitarr));
 					$conn->exec("DELETE FROM bot_blocktextlist WHERE group_number = {$_POST['ExternalId']} AND BlockText = '{$blockstr}' LIMIT 1");
@@ -418,7 +418,7 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 				case 'kick':
 					if (count($splitarr) < 1) {
 						$text.="Usage: {$commandhelp['botadmin']['kick'][0]}.\n";
-						break;
+						break 2;
 					}
 					$qqNumber=(int)isAT($splitarr[0]);
 					Kick($_POST['ExternalId'],$qqNumber);
@@ -426,7 +426,7 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 				case 'changecard':
 					if (count($splitarr) < 1) {
 						$text.="Usage: {$commandhelp['botadmin']['changecard'][0]}.\n";
-						break;
+						break 2;
 					}
 					if (count($splitarr) < 2) {
 						ChangeCard($_POST['RobotQQ'],$splitarr[0]);
