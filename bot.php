@@ -480,14 +480,14 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 			}
 			$mode=0;
 			$modearr=explode(' ', $messagearr[1]);
-			if (is_numeric($modearr[count($modearr)-1])) {
+			if (count($modearr) > 1 && is_numeric($modearr[count($modearr)-1])) {
 				$mode=(int)$modearr[count($modearr)-1];
-			}
-			if ($mode < 0 || $mode > 3) {
-				$mode=0;
-			} elseif (count($modearr) > 1) {
-				unset($modearr[count($modearr)-1]);
-				$messagearr[1]=implode(' ',$modearr);
+				if ($mode < 0 || $mode > 3) {
+					$mode=0;
+				} else {
+					unset($modearr[count($modearr)-1]);
+					$messagearr[1]=implode(' ',$modearr);
+				}
 			}
 			setGameMode($mode);
 			$username=sqlstr($messagearr[1]);
