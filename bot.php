@@ -183,6 +183,10 @@ function CheckCommandBlacklist($command,$admin=1) {
 		case 'weather':
 		case 'br':
 			break;
+		case 'sleep':
+			if ($_POST['ExternalId'] == 334765813) {
+				break;
+			}
 		case 'botadmin':
 			if (!$conn->queryOne("SELECT 1 FROM bot_groupinfo WHERE group_number = {$_POST['ExternalId']} AND bot_fakeadmin = {$_POST['QQ']} LIMIT 1")) {
 				return 1;
@@ -823,28 +827,28 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 						break;
 					}
 					if ($_POST['QQ'] == $splitarr[2]) {
-						$text.="自己不能赠送给自己";
+						$text.=$lang['can_not_send_gift_to_myself'];
 						break;
 					}
 					$splitarr[3]=sqlstr($splitarr[3]);
 					list($curGoodsCount,$curGoodsStoreID)=$conn->queryRow("SELECT COUNT(*), sb.store_id FROM osu_store_bill sb JOIN osu_store s ON s.id = sb.store_id WHERE sb.qq = {$_POST['QQ']} AND s.disposable = 0 AND s.name = '{$splitarr[3]}'",1);
 					if ($splitarr[4] < 1) {
-						$text.="赠送数量必须大于 0";
+						$text.=$lang['send_gift_count_must_>_0'];
 						break;
 					} elseif (empty($curGoodsStoreID)) {
-						$text.="你没有这件商品";
+						$text.=$lang['have_not_this_goods'];
 						break;
 					} elseif ($splitarr[4] > $curGoodsCount) {
-						$text.="你的库存不足";
+						$text.=$lang['have_not_this_goods_count'];
 						break;
 					}
 					$conn->exec("DELETE FROM osu_store_bill WHERE qq = {$_POST['QQ']} AND store_id = {$curGoodsStoreID} LIMIT {$splitarr[4]}");
 					for ($i=0;$i<$splitarr[4];$i++) {
 						if (!AddBuyEvent($splitarr[2],$curGoodsStoreID,0)) {
-							$text.="记账失败.\n";
+							$text.="{$lang['bookkeeping_failed']}\n";
 						}
 					}
-					$text.="赠送完成";
+					$text.=$lang['send_gift_succeed'];
 					break;
 				default:
 					$goodsarr=explode(' ',$messagearr[1]);
@@ -858,16 +862,16 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 					list($goodsid,$goodsname,$goodsstock,$goodsprice,$goodssql,$goodsdisposable)=$conn->queryRow("SELECT id,name,stock,money,`sql`,disposable FROM osu_store WHERE name = '{$goodsname}' LIMIT 1",1);
 					if (!empty($goodsid)) {
 						if ($goodsstock !== null && $goodsstock == 0) {
-							$text.="库存不足";
+							$text.=$lang['not_enough_stock'];
 							break;
 						}
 						if ($buyCount > 1 && $goodsdisposable) {
-							$text.="不能购买多个一次性商品";
+							$text.=$lang['can_not_buy_multi_disposable_goods'];
 							break;
 						}
 						$finalprice=$goodsprice*$buyCount;
 						if (GetCurMoney($_POST['QQ']) < $finalprice) {
-							$text.="你的余额不足";
+							$text.="{$lang['your']}{$lang['not_enough_money']}";
 							break;
 						}
 						if ($finalprice > 0) {
@@ -877,13 +881,13 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 						}
 						if ($finalprice != 0) {
 							if (!$payid=AddMoneyEvent("Buy",$_POST['QQ'],$finalprice)) {
-								$text.="扣款失败";
+								$text.=$lang['deduct_money_failed'];
 								break;
 							}
 						}
 						for ($i=0;$i<$buyCount;$i++) {
 							if (!AddBuyEvent($_POST['QQ'],$goodsid,((isset($payid) ? $payid : 0)))) {
-								$text.="记账失败";
+								$text.=$lang['bookkeeping_failed'];
 								break;
 							}
 						}
@@ -893,20 +897,20 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 							$conn->exec($goodssql);
 						}
 						if (mysqli_affected_rows($conn) < 1) {
-							$text.="交付商品时发生错误";
+							$text.=$lang['error_occurred_when_provide_goods'];
 							if (isset($payid)) {
 								if (!GiveBackMoney($payid)) {
-									$text.="{$lang['comma']}退还余额失败";
+									$text.="{$lang['comma']}{$lang['return_money_failed']}";
 								}
 							}
 						} else {
 							if ($goodsstock !== null && $goodsstock >= $buyCount) {
 								$conn->exec("UPDATE osu_store SET stock=stock-{$buyCount} WHERE id = {$goodsid} LIMIT 1");
 							}
-							$text.="已扣款并交付商品";
+							$text.=$lang['deduct_money_and_provide_goods_succeed'];
 						}
 					} else {
-						$text.='商店内没有这件商品';
+						$text.=$lang['have_not_this_goods_in_store'];
 					}
 					break;
 			}
@@ -921,24 +925,24 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 			if ($conn->queryOne("SELECT 1 FROM osu_pay WHERE type = 'Checkin' AND time >= CURDATE() AND qq = {$_POST['QQ']} LIMIT 1")) {
 				if ($messagecount > 1 && $messagearr[1] == '0.3') {
 					if (GetCurMoney($_POST['QQ']) < 0.3) {
-						$text.="你的余额不足.\n";
+						$text.="{$lang['your']}{$lang['not_enough_money']}.\n";
 						break;
 					}
 					if (!AddMoneyEvent('Checkin-',$_POST['QQ'],-0.3)) {
-						$text.="扣款失败.\n";
+						$text.="{$lang['deduct_money_failed']}.\n";
 						break;
 					}
-					$text.="已扣款 0.3 个 BanCoin.\n";
+					$text.=sprintf($lang['deducted_+_money'],0.3)."\n";
 					$checkinType.='+';
 				} else {
-					$text.="请勿再次签到.\n";
+					$text.="{$lang['do_not_checkin_again']}\n";
 					break;
 				}
 			}
 			//$randomMoney=(GetRandomNumber(100)/100)-(GetRandomNumber(50)/100);
 			$randomMoney=round(lcg_value()/2,2);
 			AddMoneyEvent($checkinType,$_POST['QQ'],$randomMoney);
-			$text.="签到成功{$lang['comma']}获得 {$randomMoney} 个 BanCoin.\n";
+			$text.="{$lang['checkin_succeed']}{$lang['comma']}{$lang['get']} {$randomMoney} BanCoin.\n";
 			break;
 		case 'bansay':
 			ChangeSayStatus();
@@ -988,12 +992,12 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 				}
 				$userid=GetUserIDByUsername($messagearr[1]);
 				if (!$userid) {
-					$text.="找不到该玩家.\n";
+					$text.="{$lang['user_not_found']}\n";
 					break;
 				}
 				$rank=GetPlayerRankByUserID($mode,$userid);
 				if (!$rank) {
-					$text.="没有游玩记录.\n";
+					$text.="{$lang['no_play_records']}\n";
 					break;
 				}
 				setGameMode($mode);
@@ -1006,7 +1010,7 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 				$text.="Plays: {$playcount} (lv{$level})\n";
 				$text.="Accuracy: {$accuracy}%\n";
 			} else {
-				$text.="没有提供玩家名.\n";
+				$text.="{$lang['no_username_provide']}\n";
 			}
 			break;
 		case 'friend':
@@ -1019,10 +1023,10 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 			if ($messagecount < 2) {
 				$friendsList=$conn->queryAll("SELECT u.username,IF((SELECT 1 FROM osu_friends WHERE user_id = f.zebra_id AND zebra_id = {$userid} LIMIT 1),1,0) as mu FROM osu_friends f JOIN osu_users u ON u.user_id = f.zebra_id WHERE f.user_id = {$userid} ORDER BY u.user_lastvisit DESC LIMIT ".MaxFriendsCount);
 				if (count($friendsList) < 1) {
-					$text.="你还没有添加任何好友！\n";
+					$text.="{$lang['you_have_not_added_any_friends_yet']}\n";
 					break;
 				}
-				$text.="{$username} 的好友: ";
+				$text.="{$username} {$lang['added_friends']}: ";
 				foreach ($friendsList as $value) {
 					if ($value['mu'] == 1) {
 						$text.="※ ";
@@ -1035,7 +1039,7 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 				$messagearr[1]=sqlstr($messagearr[1]);
 				$isAdded=$conn->queryOne("SELECT 1 FROM osu_friends f JOIN osu_users u ON username = '{$messagearr[1]}' WHERE f.user_id = {$userid} AND f.zebra_id = u.user_id LIMIT 1");
 				$isBeAdded=$conn->queryOne("SELECT 1 FROM osu_friends f JOIN osu_users u ON username = '{$messagearr[1]}' WHERE u.user_id = f.user_id AND f.zebra_id = {$userid} LIMIT 1");
-				$text.=(!empty($isAdded) ? "You've added him/her as a friend" : "You haven't added him/her as a friend yet").', '.(!empty($isBeAdded) ? "he/she has added you as a friend" : "he/she hasn't added you as a friend yet").'.';
+				$text.=(!empty($isAdded) ? $lang['you_have_added_him/her_as_a_friend'] : $lang['you_have_not_added_him/her_as_a_friend_yet']).', '.(!empty($isBeAdded) ? $lang['he/she_has_added_you_as_a_friend'] : $lang['he/she_has_not_added_you_as_a_friend_yet']).'.';
 			}
 			$text.="\n";
 			break;
@@ -1056,7 +1060,7 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 			setGameMode($mode);
 			list($scoreID,$beatmapID,$rank,$mods,$finalpp)=$conn->queryRow("SELECT score_id, beatmap_id, rank, enabled_mods, pp FROM {$highScoreTable} WHERE user_id = {$userid} ORDER BY date DESC LIMIT 1",1);
 			if (empty($rank)) {
-				$text.="No play records.\n";
+				$text.="{$lang['no_play_records']}\n";
 				break;
 			}
 			$pp=$conn->queryOne("SELECT pp FROM {$scoreTable} WHERE score_id = {$scoreID} LIMIT 1");
@@ -1069,13 +1073,13 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 			if (!empty($beatmap_name)) {
 				$text.="{$beatmap_name} [{$beatmap_version}]\n";
 			}
-			$text.="评级{$lang['colon']}{$rank}{$lang['comma']}Mods{$lang['colon']}{$mods}{$lang['comma']}{$pp}pp({$finalpp}pp)\n";
-			$text.="谱面{$lang['colon']}https://osu.ppy.sh/b/{$beatmapID}";
+			$text.="{$lang['rank']}{$lang['colon']}{$rank}{$lang['comma']}Mods{$lang['colon']}{$mods}{$lang['comma']}{$pp}pp({$finalpp}pp)\n";
+			$text.="{$lang['beatmap']}{$lang['colon']}https://osu.ppy.sh/b/{$beatmapID}";
 			if (!empty($hit_length)) {
-				$text.="{$lang['comma']}谱长{$lang['colon']}{$hit_length} 秒{$lang['comma']}总长{$lang['colon']}{$total_length} 秒";
+				$text.="{$lang['comma']}{$lang['beatmap_hit_length']}{$lang['colon']}{$hit_length} {$lang['second']}{$lang['comma']}{$lang['beatmap_total_length']}{$lang['colon']}{$total_length} {$lang['second']}";
 			}
 			$text.="\n";
-			$text.="用户页{$lang['colon']}https://user.osupink.net/".rawurlencode($username);
+			$text.="{$lang['userpage']}{$lang['colon']}https://user.osupink.net/".rawurlencode($username);
 			$text.="\n";
 			break;
 		default:
