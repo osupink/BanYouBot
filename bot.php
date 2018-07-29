@@ -422,6 +422,26 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 					$blockstr=sqlstr(implode(' ',$splitarr));
 					$conn->exec("DELETE FROM bot_blocktextlist WHERE group_number = {$_POST['ExternalId']} AND BlockText = '{$blockstr}' LIMIT 1");
 					break;
+				case 'blockqqlist':
+					$blockQQList=$conn->queryAll("SELECT BlockQQ, BlockTime FROM bot_blockqqlist WHERE group_number = {$_POST['ExternalId']}");
+					if (count($blockQQList) < 1) {
+						$text.="{$lang['have_not_blockqqlist']}\n";
+						break 2;
+					}
+					foreach ($blockQQList as $value) {
+						$text.="QQ: {$value['BlockQQ']}, Silence Time: {$value['BlockTime']}.\n";
+					}
+					break;
+				case 'blocktextlist':
+					$blockTextList=$conn->queryAll("SELECT BlockText FROM bot_blocktextlist WHERE group_number = {$_POST['ExternalId']}");
+					if (count($blockTextList) < 1) {
+						$text.="{$lang['have_not_blocktextlist']}\n";
+						break 2;
+					}
+					foreach ($blockTextList as $value) {
+						$text.="Text: {$value['BlockText']}.\n";
+					}
+					break;
 				case 'kick':
 					if (count($splitarr) < 1) {
 						$text.="{$lang['usage']}{$lang['colon']}{$commandhelp['botadmin']['kick'][0]}.\n";

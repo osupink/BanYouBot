@@ -84,7 +84,9 @@ $lang=array(
 	'you_have_added_him/her_as_a_friend'=>'你已经添加了他/她为好友',
 	'you_have_not_added_him/her_as_a_friend_yet'=>'你还没有添加他/她为好友',
 	'he/she_has_added_you_as_a_friend'=>'他/她已经添加了你为好友',
-	'he/she_has_not_added_you_as_a_friend_yet'=>'他/她还没有添加你为好友'
+	'he/she_has_not_added_you_as_a_friend_yet'=>'他/她还没有添加你为好友',
+	'have_not_blockqqlist'=>'没有任何 QQ 在黑名单里.',
+	'have_not_blocktextlist'=>'没有任何文本在黑名单里.'
 );
 $commandhelp=array(
 	'buy'=>array(
@@ -118,6 +120,8 @@ $commandhelp=array(
 		'blocktext'=>array('!botadmin blocktext <文本>','将指定文本加入黑名单'),
 		'unblockqq'=>array('!botadmin unblockqq <QQ>','将指定 QQ 从黑名单中移出'),
 		'unblocktext'=>array('!botadmin unblocktext <文本>','将指定文本从黑名单中移出'),
+		'blockqqlist'=>array('!botadmin blockqqlist','列出本群的 QQ 黑名单'),
+		'blocktextlist'=>array('!botadmin blocktextlist','列出本群的文本黑名单'),
 		'changecard'=>array('!botadmin changecard [QQ] <名片>','修改 Bot/指定 QQ 的名片')
 	)
 );
