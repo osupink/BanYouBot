@@ -821,8 +821,8 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 					$minLimit--;
 					$billlist=$conn->queryAll("SELECT sb.pay_id,s.name,s.callname,p.time,s.money,COUNT(*) as count FROM osu_store_bill sb JOIN osu_store s ON s.id = sb.store_id LEFT JOIN osu_pay p ON p.id = sb.pay_id WHERE sb.qq = {$_POST['QQ']} GROUP BY p.time ORDER BY p.time DESC LIMIT {$minLimit},10");
 					foreach ($billlist as $value) {
-						$text.="{$value['pay_id']}. ";
 						if (!empty($value['time'])) {
+							$text.="{$value['pay_id']}. ";
 							$text.="{$value['time']} ";
 						}
 						$text.="{$lang['shorter_goods_name']}{$lang['colon']}{$value['name']}{$lang['comma']}{$lang['goods_name']}{$lang['colon']}{$value['callname']}{$lang['comma']}{$lang['count']}{$lang['colon']}{$value['count']}{$lang['comma']}{$lang['money']}{$lang['colon']}{$value['money']}.\n";
