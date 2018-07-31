@@ -736,10 +736,10 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 					$page=ceil($minLimit/10);
 					$maxPage=ceil($curMaxLimit/10);
 					$minLimit--;
-					$billlist=$conn->queryAll("SELECT time,type,money FROM osu_pay WHERE qq = {$_POST['QQ']} ORDER BY time DESC LIMIT {$minLimit},10");
+					$billlist=$conn->queryAll("SELECT id,time,type,money FROM osu_pay WHERE qq = {$_POST['QQ']} ORDER BY time DESC LIMIT {$minLimit},10");
 					foreach ($billlist as $value) {
 						$type=(isset($billtypelist[$value['type']])) ? $billtypelist[$value['type']] : $value['type'];
-						$text.="{$value['time']} {$lang['type']}{$lang['colon']}{$type}{$lang['comma']}{$lang['money']}{$lang['colon']}{$value['money']}.\n";
+						$text.="{$value['id']}. {$value['time']} {$lang['type']}{$lang['colon']}{$type}{$lang['comma']}{$lang['money']}{$lang['colon']}{$value['money']}.\n";
 					}
 					$text.="{$lang['page_number']}{$lang['colon']}{$page}/{$maxPage}.\n";
 					break;
@@ -819,8 +819,9 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 					$page=ceil($minLimit/10);
 					$maxPage=ceil($curMaxLimit/10);
 					$minLimit--;
-					$billlist=$conn->queryAll("SELECT s.name,s.callname,p.time,s.money,COUNT(*) as count FROM osu_store_bill sb JOIN osu_store s ON s.id = sb.store_id LEFT JOIN osu_pay p ON p.id = sb.pay_id WHERE sb.qq = {$_POST['QQ']} GROUP BY p.time ORDER BY p.time DESC LIMIT {$minLimit},10");
+					$billlist=$conn->queryAll("SELECT sb.pay_id,s.name,s.callname,p.time,s.money,COUNT(*) as count FROM osu_store_bill sb JOIN osu_store s ON s.id = sb.store_id LEFT JOIN osu_pay p ON p.id = sb.pay_id WHERE sb.qq = {$_POST['QQ']} GROUP BY p.time ORDER BY p.time DESC LIMIT {$minLimit},10");
 					foreach ($billlist as $value) {
+						$text.="{$value['pay_id']}. ";
 						if (!empty($value['time'])) {
 							$text.="{$value['time']} ";
 						}
