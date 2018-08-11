@@ -951,16 +951,11 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 			}
 			$checkinType='Checkin';
 			if ($conn->queryOne("SELECT 1 FROM osu_pay WHERE type = 'Checkin' AND time >= CURDATE() AND qq = {$_POST['QQ']} LIMIT 1")) {
-				if ($messagecount > 1 && $messagearr[1] == '0') {
-					$checkinType.='+';
-				} else {
-					$text.="{$lang['do_not_checkin_again']}\n";
-					break;
-				}
+				$checkinType.='+';
 			}
 			//$randomMoney=(GetRandomNumber(100)/100)-(GetRandomNumber(50)/100);
 			$randomMoney=round(lcg_value()/2,2);
-			$randomMoney-=round(lcg_value()/2,2);
+			$randomMoney-=round(lcg_value()/2.1,2);
 			AddMoneyEvent($checkinType,$_POST['QQ'],$randomMoney);
 			$text.="{$lang['checkin_succeed']}{$lang['comma']}{$lang['get']} {$randomMoney} BanCoin.\n";
 			break;
