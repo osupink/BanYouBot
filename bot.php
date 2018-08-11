@@ -951,16 +951,7 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 			}
 			$checkinType='Checkin';
 			if ($conn->queryOne("SELECT 1 FROM osu_pay WHERE type = 'Checkin' AND time >= CURDATE() AND qq = {$_POST['QQ']} LIMIT 1")) {
-				if ($messagecount > 1 && $messagearr[1] == '0.3') {
-					if (GetCurMoney($_POST['QQ']) < 0.3) {
-						$text.="{$lang['your']}{$lang['not_enough_money']}.\n";
-						break;
-					}
-					if (!AddMoneyEvent('Checkin-',$_POST['QQ'],-0.3)) {
-						$text.="{$lang['deduct_money_failed']}.\n";
-						break;
-					}
-					$text.=sprintf($lang['deducted_+_money'],0.3)."\n";
+				if ($messagecount > 1 && $messagearr[1] == '0') {
 					$checkinType.='+';
 				} else {
 					$text.="{$lang['do_not_checkin_again']}\n";
@@ -969,6 +960,7 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 			}
 			//$randomMoney=(GetRandomNumber(100)/100)-(GetRandomNumber(50)/100);
 			$randomMoney=round(lcg_value()/2,2);
+			$randomMoney-=round(lcg_value()/2,2);
 			AddMoneyEvent($checkinType,$_POST['QQ'],$randomMoney);
 			$text.="{$lang['checkin_succeed']}{$lang['comma']}{$lang['get']} {$randomMoney} BanCoin.\n";
 			break;
