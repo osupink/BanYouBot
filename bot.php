@@ -955,7 +955,7 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 			}
 			//$randomMoney=(GetRandomNumber(100)/100)-(GetRandomNumber(50)/100);
 			$randomMoney=round(lcg_value()/2,2);
-			$randomMoney-=round(lcg_value()/2.1,2);
+			$randomMoney-=round(lcg_value()/2,2);
 			AddMoneyEvent($checkinType,$_POST['QQ'],$randomMoney);
 			$text.="{$lang['checkin_succeed']}{$lang['comma']}{$lang['get']} {$randomMoney} BanCoin.\n";
 			break;
