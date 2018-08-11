@@ -429,7 +429,14 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 						break 2;
 					}
 					foreach ($blockQQList as $value) {
-						$text.="QQ: {$value['BlockQQ']}, Silence Time: {$value['BlockTime']}.\n";
+						$text.="QQ: {$value['BlockQQ']}, ";
+						if ($_POST['ExternalId'] == $mainGroupNumber) {
+							$osuID=$conn->queryOne("SELECT username FROM osu_users WHERE user_qq = {$value['BlockQQ']} LIMIT 1");
+							if (!empty($osuID)) {
+								$text.="BanYou(osu!) ID: {$osuID}, ";
+							}
+						}
+						$text.="Silence Time: {$value['BlockTime']}.\n";
 					}
 					break;
 				case 'blocktextlist':
