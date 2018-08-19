@@ -731,9 +731,23 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 					}
 					break;
 				case 'bill':
+					if (count($splitarr) > 0) {
+						$qqNumber=isAT($splitarr[0]);
+						if ($splitarr[0] == $qqNumber) {
+							$qqNumber=0;
+						} elseif (count($splitarr) > 1) {
+							$splitarr[0]=$splitarr[1];
+							unset($splitarr[1]);
+						} else {
+							unset($splitarr[0]);
+						}
+					}
+					if ($qqNumber === 0) {
+						$qqNumber=$_POST['QQ'];
+					}
 					$page=(count($splitarr) > 0 && is_numeric($splitarr[0]) && $splitarr[0] > 0) ? $splitarr[0] : 1;
 					$maxLimit=$page*10;
-					$curMaxLimit=$conn->queryOne("SELECT COUNT(*) FROM osu_pay WHERE qq = {$_POST['QQ']}");
+					$curMaxLimit=$conn->queryOne("SELECT COUNT(*) FROM osu_pay WHERE qq = {$qqNumber}");
 					if ($maxLimit > $curMaxLimit+9) {
 						$text.=sprintf($lang['have_not_+_bill_or_out_of_range'],' BanCoin ');
 						$text.="\n";
@@ -743,7 +757,7 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 					$page=ceil($minLimit/10);
 					$maxPage=ceil($curMaxLimit/10);
 					$minLimit--;
-					$billlist=$conn->queryAll("SELECT id,time,type,money FROM osu_pay WHERE qq = {$_POST['QQ']} ORDER BY time DESC LIMIT {$minLimit},10");
+					$billlist=$conn->queryAll("SELECT id,time,type,money FROM osu_pay WHERE qq = {$qqNumber} ORDER BY time DESC LIMIT {$minLimit},10");
 					foreach ($billlist as $value) {
 						$type=(isset($billtypelist[$value['type']])) ? $billtypelist[$value['type']] : $value['type'];
 						$text.="{$value['id']}. {$value['time']} {$lang['type']}{$lang['colon']}{$type}{$lang['comma']}{$lang['money']}{$lang['colon']}{$value['money']}.\n";
