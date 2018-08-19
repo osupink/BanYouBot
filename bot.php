@@ -742,7 +742,7 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 							unset($splitarr[0]);
 						}
 					}
-					if ($qqNumber === 0) {
+					if (!isset($qqNumber) || $qqNumber === 0) {
 						$qqNumber=$_POST['QQ'];
 					}
 					$page=(count($splitarr) > 0 && is_numeric($splitarr[0]) && $splitarr[0] > 0) ? $splitarr[0] : 1;
