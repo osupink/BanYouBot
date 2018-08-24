@@ -344,9 +344,8 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 			if ($silenceTime <= 0) {
 				break;
 			}
-			$audiopath=GetCurFullPath("走好不送.amr");
 			Silence($_POST['ExternalId'],$_POST['QQ'],$silenceTime);
-			echo "<&&>SendClusterMessage<&>{$_POST['ExternalId']}<&>[声音={$audiopath}]\n";
+			echo "<&&>SendClusterMessage<&>{$_POST['ExternalId']}<&>走好不送！\n";
 			break;
 		case 'fs':
 			if (count($splitarr) < 2) {
