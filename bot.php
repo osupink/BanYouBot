@@ -1130,6 +1130,7 @@ function HandleMessage($isGroup,$messages) {
 		$messages=explode('|',$messages[0]);
 	}
 	foreach ($messages as $fullmessage) {
+		$fullmessage=trim($fullmessage);
 		if (empty($fullmessage)) {
 			continue;
 		}
