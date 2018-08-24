@@ -627,6 +627,11 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 		case 'announce':
 			if (count($messagearr) > 1) {
 				Announce($messagearr[1]);
+			} else {
+				if (!empty($text)) {
+					Announce($text);
+					$text='';
+				}
 			}
 			break;
 		case 'bindid':
