@@ -1124,6 +1124,11 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 }
 function HandleMessage($isGroup,$messages) {
 	$text='';
+	if (count($messages) < 1) {
+		return;
+	} elseif (count($messages) < 2) {
+		$messages=explode('|',$messages[0]);
+	}
 	foreach ($messages as $fullmessage) {
 		if (empty($fullmessage)) {
 			continue;
