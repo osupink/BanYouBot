@@ -822,11 +822,15 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 			switch (strtolower($splitarr[1])) {
 				case 'list':
 					$goodslist=$conn->queryAll("SELECT id,name,callname,stock,money FROM osu_store ORDER BY id ASC",0);
+					$i=0;
 					foreach ($goodslist as $value) {
 						if ($value['stock'] === null) {
 							$value['stock']=$lang['unrestricted'];
+						} elseif ($value['stock'] < 1) {
+							continue;
 						}
-						$text.="{$value['id']}. {$lang['shorter_goods_name']}{$lang['colon']}{$value['name']}{$lang['comma']}{$lang['goods_name']}{$lang['colon']}{$value['callname']}{$lang['comma']}{$lang['stock']}{$lang['colon']}{$value['stock']}{$lang['comma']}{$lang['price']}{$lang['colon']}{$value['money']}.\n";
+						$i++;
+						$text.="{$i}. {$lang['shorter_goods_name']}{$lang['colon']}{$value['name']}{$lang['comma']}{$lang['goods_name']}{$lang['colon']}{$value['callname']}{$lang['comma']}{$lang['stock']}{$lang['colon']}{$value['stock']}{$lang['comma']}{$lang['price']}{$lang['colon']}{$value['money']}.\n";
 					}
 					break 2;
 				case 'bill':
