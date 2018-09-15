@@ -796,7 +796,7 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 										$received_username="QQ:{$splitarr[0]}";
 									}
 									$splitarr[1]=sprintf('%.2f',$splitarr[1]);
-									Announce("[BanCoin] {$received_username} 通过转账被赠送了 {$splitarr[1]}.")
+									Announce("[BanCoin] {$received_username} 通过转账被赠送了 {$splitarr[1]}.");
 								} else {
 									$tmp.=$lang['add_money_failed'];
 								}
