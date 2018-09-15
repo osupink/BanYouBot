@@ -716,6 +716,7 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 						$tmp.=sprintf($lang['balance_is_+'],$username,$curMoney);
 					}
 					break;
+				/*
 				case 'rank':
 					if (isGroup($isGroup)) {
 						$ranklist=$conn->queryAll("SELECT qq,SUM(money) as money FROM osu_pay GROUP BY qq ORDER BY money DESC LIMIT 10",0);
@@ -734,6 +735,7 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 						}
 					}
 					break;
+				*/
 				case 'bill':
 					if (count($splitarr) > 0) {
 						$qqNumber=isAT($splitarr[0]);

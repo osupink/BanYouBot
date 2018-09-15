@@ -101,7 +101,7 @@ $commandhelp=array(
 	),
 	'bancoin'=>array(
 		'bill'=>array('!bancoin bill','列出我的 BanCoin 账单'),
-		'rank'=>array('!bancoin rank','查看 BanCoin 余额排名（仅群组内可用）'),
+		/* 'rank'=>array('!bancoin rank','查看 BanCoin 余额排名（仅群组内可用）'), */
 		'balance'=>array('!bancoin balance','显示我的余额'),
 		'transfer'=>array('!bancoin transfer <QQ> <BanCoin 数量>','给指定 QQ 转账指定数量的 BanCoin')
 	),
