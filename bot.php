@@ -1005,6 +1005,7 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 				$text.="{$messagearr[1]}\n";
 			}
 			break;
+		/*
 		case 'weather':
 			if ($messagecount < 2) {
 				$text.="{$lang['usage']}{$lang['colon']}{$commandhelp['weather'][0]}";
@@ -1023,6 +1024,7 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 			}
 			$text.=".\n";
 			break;
+		*/
 		case 'stat':
 		case 'stats':
 			if ($messagecount > 1) {
