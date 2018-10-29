@@ -993,12 +993,12 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 				break;
 			}
 			$checkinType='Checkin';
+			//$randomMoney=(GetRandomNumber(100)/100)-(GetRandomNumber(50)/100);
+			$randomMoney=round(lcg_value(),2);
 			if ($conn->queryOne("SELECT 1 FROM osu_pay WHERE type = 'Checkin' AND time >= CURDATE() AND qq = {$_POST['QQ']} LIMIT 1")) {
 				$checkinType.='+';
+				$randomMoney=0.4-$randomMoney;
 			}
-			//$randomMoney=(GetRandomNumber(100)/100)-(GetRandomNumber(50)/100);
-			$randomMoney=0.4;
-			$randomMoney-=round(lcg_value(),2);
 			AddMoneyEvent($checkinType,$_POST['QQ'],$randomMoney);
 			$text.="{$lang['checkin_succeed']}{$lang['comma']}{$lang['get']} {$randomMoney} BanCoin.\n";
 			break;
