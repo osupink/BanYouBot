@@ -65,6 +65,16 @@ function AddBuyEvent($qq,$store_id,$pay_id) {
 	}
 	return 0;
 }
+function DeleteStoreBill($qq,$goodsid) {
+	global $conn;
+	if (!is_numeric($goodsid)) {
+		return 0;
+	}
+	if ($conn->exec("DELETE FROM osu_store_bill WHERE qq = {$qq} AND store_id = {$goodsid} LIMIT 1")) {
+		return 1;
+	}
+	return 0;
+}
 function GiveBackMoney($payid) {
 	global $conn;
 	if (!is_numeric($payid)) {
@@ -961,6 +971,9 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 									$text.="{$lang['comma']}{$lang['return_money_failed']}";
 								}
 							}
+							if (!DeleteStoreBill($_POST['QQ'],$goodsid)) {
+								$text.="{$lang['comma']}{$lang['delete_store_bill_failed']}";
+							}
 						} else {
 							if ($goodsstock !== null && $goodsstock >= $buyCount) {
 								$conn->exec("UPDATE osu_store SET stock=stock-{$buyCount} WHERE id = {$goodsid} LIMIT 1");
@@ -1211,7 +1224,7 @@ if ($_POST['Key'] !== BotKey) {
 	die();
 }
 require_once('include.functions.php');
-require_once('include.db.php');
+require_once('web/include.db.php');
 $masterQQ='2143585062';
 $devGroupNumber='609602961';
 $mainGroupNumber='686469603';
