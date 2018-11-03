@@ -716,6 +716,9 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 					}
 					if ($isMaster && count($splitarr) > 0 && is_numeric($splitarr[0])) {
 						$username=GetUsernameByQQ($splitarr[0]);
+						if (!$username) {
+							$username="[@$splitarr[0]]";
+						}
 						$curMoney=GetCurMoney($splitarr[0]);
 					} else {
 						$curMoney=GetCurMoney($_POST['QQ']);
