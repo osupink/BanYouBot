@@ -2,6 +2,7 @@
 date_default_timezone_set('Asia/Shanghai');
 require_once('include.key.php');
 require_once('lang.php');
+require_once('web/include.notice.php');
 set_error_handler('botErrorHandler');
 define('MaxFriendsCount',32);
 function botErrorHandler($errno,$errstr,$errfile,$errline,$errcontext) {
