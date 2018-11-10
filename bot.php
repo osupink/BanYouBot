@@ -2,7 +2,28 @@
 date_default_timezone_set('Asia/Shanghai');
 require_once('include.key.php');
 require_once('lang.php');
+set_error_handler('botErrorHandler');
 define('MaxFriendsCount',32);
+function botErrorHandler($errno,$errstr,$errfile,$errline,$errcontext) {
+	switch ($errno)
+	{
+		case E_ERROR:               $type = "Error";                  break;
+		case E_WARNING:             $type = "Warning";                break;
+		case E_PARSE:               $type = "Parse Error";            break;
+		case E_NOTICE:              $type = "Notice";                 break;
+		case E_CORE_ERROR:          $type = "Core Error";             break;
+		case E_CORE_WARNING:        $type = "Core Warning";           break;
+		case E_COMPILE_ERROR:       $type = "Compile Error";          break;
+		case E_COMPILE_WARNING:     $type = "Compile Warning";        break;
+		case E_USER_ERROR:          $type = "User Error";             break;
+		case E_USER_WARNING:        $type = "User Warning";           break;
+		case E_USER_NOTICE:         $type = "User Notice";            break;
+		case E_STRICT:              $type = "Strict Notice";          break;
+		case E_RECOVERABLE_ERROR:   $type = "Recoverable Error";      break;
+		default:                    $type = "Unknown error ($errno)"; break;
+	}
+	addnotice("New $type occurred in BanYouBot","$errstr ($errfile:$errline)");
+}
 function isBanSay() {
 	if (file_exists('bansay')) {
 		return 1;
