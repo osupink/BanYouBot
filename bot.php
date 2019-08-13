@@ -32,11 +32,11 @@ function toJSON($arr) {
 }
 function sendGroupMessage($groupNumber, $message) {
 	$message=rawurlencode($message);
-	file_get_contents(APIURL."/send_group_msg?group_id={$groupNumber}&message={$message}");
+	file_get_contents(APIURL."/send_group_msg_async?group_id={$groupNumber}&message={$message}");
 }
 function sendMessage($qqNumber, $message) {
 	$message=rawurlencode($message);
-	file_get_contents(APIURL."/send_private_msg?user_id={$qqNumber}&message={$message}");
+	file_get_contents(APIURL."/send_private_msg_async?user_id={$qqNumber}&message={$message}");
 }
 function sendTempMessage($groupNumber, $qqNumber, $message) {
 }
@@ -298,13 +298,13 @@ function Silence($groupNumber,$QQNumber,$silenceTime) {
 	if (isAnonymous($QQNumber)) {
 		return;
 	}
-	file_get_contents(APIURL."/set_group_ban?group_id={$groupNumber}&user_id={$QQNumber}&duration={$silenceTime}");
+	file_get_contents(APIURL."/set_group_ban_async?group_id={$groupNumber}&user_id={$QQNumber}&duration={$silenceTime}");
 }
 function Kick($groupNumber,$QQNumber) {
 	if (isAnonymous($QQNumber)) {
 		return;
 	}
-	file_get_contents(APIURL."/set_group_kick?group_id={$groupNumber}&user_id={$QQNumber}");
+	file_get_contents(APIURL."/set_group_kick_async?group_id={$groupNumber}&user_id={$QQNumber}");
 }
 function Announce($str) {
 	global $groupNumberList;
@@ -318,7 +318,7 @@ function ChangeCard($QQNumber,$card) {
 		return;
 	}
 	$card=rawurlencode($card);
-	file_get_contents(APIURL."/set_group_card?group_id={$groupNumber}&user_id={$QQNumber}&card={$card}");
+	file_get_contents(APIURL."/set_group_card_async?group_id={$groupNumber}&user_id={$QQNumber}&card={$card}");
 }
 function CheckEvent() {
 	global $conn,$groupNumberList,$devGroupNumber,$mainGroupNumber,$scoreTable,$highScoreTable;
