@@ -270,11 +270,14 @@ function CheckSilenceList($fullmessage) {
 			break;
 		*/
 		default:
-			if ($qqNumber != $masterQQ && !$conn->queryOne("SELECT 1 FROM bot_groupinfo WHERE group_number = {$groupNumber} AND bot_fakeadmin = {$qqNumber} LIMIT 1")) {
+			if ($qqNumber != $masterQQ) {
 				$blockTime=$conn->queryOne("SELECT BlockTime FROM bot_blockqqlist WHERE group_number = {$groupNumber} AND BlockQQ = {$qqNumber} LIMIT 1");
 				if ($blockTime !== false && $blockTime == "0") {
 					Kick($groupNumber,$qqNumber);
 					return -1;
+				}
+				if ($conn->queryOne("SELECT 1 FROM bot_groupinfo WHERE group_number = {$groupNumber} AND bot_fakeadmin = {$qqNumber} LIMIT 1")) {
+					break;
 				}
 				if ($blockTime) {
 					return $blockTime;
@@ -284,8 +287,9 @@ function CheckSilenceList($fullmessage) {
 					return 10;
 				}
 			}
-			return 0;
+			break;
 	}
+	return 0;
 }
 function isAnonymous($QQNumber) {
 	if ($QQNumber == 80000000) {
