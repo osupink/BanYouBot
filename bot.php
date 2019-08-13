@@ -167,7 +167,7 @@ function isGroup($isGroup) {
 	return (($isGroup === 1) ? 1 : 0);
 }
 function isAT($str) {
-	if (preg_match('/^\[@(\d*)\]$/', $str, $matches)) {
+	if (preg_match('/^\[CQ:at,qq=(\d*)\]$/', $str, $matches)) {
 		return (int)$matches[1];
 	}
 	return $str;
@@ -294,6 +294,7 @@ function isAnonymous($QQNumber) {
 	return 0;
 }
 function Silence($groupNumber,$QQNumber,$silenceTime) {
+	// 单位为秒
 	if (isAnonymous($QQNumber)) {
 		return;
 	}
@@ -516,6 +517,27 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 					$kickQQNumber=(int)isAT($splitarr[0]);
 					Kick($groupNumber,$kickQQNumber);
 					break;
+				case 'silence':
+					if (count($splitarr) < 1) {
+						$text.="{$lang['usage']}{$lang['colon']}{$commandhelp['botadmin']['silence'][0]}.\n";
+						break 2;
+					}
+					$silenceQQNumber=(int)isAT($splitarr[0]);
+					$silenceTime=(count($splitarr) > 1) ? (int)$splitarr[1] : 1;
+					if ($silenceTime > 0 && $silenceTime <= 43200) {
+						$silenceTime*=60;
+					} else {
+						$silenceTime=60;
+					}
+					Silence($groupNumber,$silenceQQNumber,$silenceTime);
+					break;
+				case 'unsilence':
+					if (count($splitarr) < 1) {
+						$text.="{$lang['usage']}{$lang['colon']}{$commandhelp['botadmin']['unsilence'][0]}.\n";
+						break 2;
+					}
+					$unSilenceQQNumber=(int)isAT($splitarr[0]);
+					Silence($groupNumber,$unSilenceQQNumber,0);
 				case 'changecard':
 					if (count($splitarr) < 1) {
 						$text.="{$lang['usage']}{$lang['colon']}{$commandhelp['botadmin']['changecard'][0]}.\n";
