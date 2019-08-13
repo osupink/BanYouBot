@@ -594,12 +594,16 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 			$allowCheckAdmin=0;
 			if ($messagecount > 1) {
 				if ($messagearr[1] != "1") {
-					break;
+					$commandKey=$messagearr[1];
+				} else {
+					$allowCheckAdmin=1;
 				}
-				$allowCheckAdmin=1;
 			}
 			foreach ($commandhelp as $key => $value) {
 				if (!CheckCommandBlacklist($key,$allowCheckAdmin)) {
+					if (isset($commandKey) && isset($commandhelp[$commandKey]) && $commandKey != $key) {
+						continue;
+					}
 					if (!isset($value[0])) {
 						$text.="!{$key}\n";
 					} else {
