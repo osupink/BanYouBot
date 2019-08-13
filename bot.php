@@ -234,9 +234,10 @@ function CheckCommandBlacklist($command,$admin=1) {
 		case 'br':
 			break;
 		case 'sleep':
-			if ($groupNumber == 334765813 || $groupNumber == 609602961) {
-				break;
+			if (!in_array($groupNumber,$groupNumberList)) {
+				return 2;
 			}
+			break;
 		case 'botadmin':
 			if (!$conn->queryOne("SELECT 1 FROM bot_groupinfo WHERE group_number = {$groupNumber} AND bot_fakeadmin = {$qqNumber} LIMIT 1")) {
 				return 1;
