@@ -1193,7 +1193,7 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 			}
 			$userid=GetUserIDByUsername($username);
 			setGameMode($mode);
-			list($scoreID,$beatmapID,$rank,$mods,$finalpp)=$conn->queryRow("SELECT score_id, beatmap_id, rank, enabled_mods, pp FROM {$highScoreTable} WHERE user_id = {$userid} ORDER BY date DESC LIMIT 1",1);
+			list($scoreID,$beatmapID,$rank,$mods,$finalpp,$date)=$conn->queryRow("SELECT score_id, beatmap_id, rank, enabled_mods, pp, date FROM {$highScoreTable} WHERE user_id = {$userid} ORDER BY date DESC LIMIT 1",1);
 			if (empty($rank)) {
 				$text.="{$lang['no_play_records']}\n";
 				break;
@@ -1203,7 +1203,7 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 			$finalpp=sprintf('%.2f',$finalpp);
 			$rank=str_replace('H','+Hidden',str_replace('X','SS',$rank));
 			$mods=getShortModString($mods,0);
-			$text.="{$username}'s BanYou Recent ({$modeName})\n";
+			$text.="{$username}'s BanYou Recent ({$modeName}) [{$date}]\n";
 			list($hit_length,$total_length,$beatmap_name,$beatmap_version)=$conn->queryRow("SELECT hit_length, total_length, CONCAT(IF(artist != '',CONCAT(artist,' - ',title),title)), version FROM osu_beatmaps WHERE beatmap_id = {$beatmapID} LIMIT 1",1);
 			if (!empty($beatmap_name)) {
 				$text.="{$beatmap_name} [{$beatmap_version}]\n";
