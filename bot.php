@@ -593,16 +593,25 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 		case 'help':
 			$allowCheckAdmin=0;
 			if ($messagecount > 1) {
-				if ($messagearr[1] != "1") {
-					$commandKey=$messagearr[1];
-				} else {
+				if ($messagearr[1] == "1" || (count($splitarr) > 2 && $splitarr[2] == "1")) {
 					$allowCheckAdmin=1;
 				}
+				if (!$allowCheckAdmin || count($splitarr) > 2) {
+					$commandKey=$splitarr[1];
+				}
 			}
+			#$text.="messageCount: {$messagecount}, allowCheckAdmin: {$allowCheckAdmin}, commandKey: {$commandKey}.";
 			foreach ($commandhelp as $key => $value) {
 				if (!CheckCommandBlacklist($key,$allowCheckAdmin)) {
-					if (isset($commandKey) && isset($commandhelp[$commandKey]) && $commandKey != $key) {
-						continue;
+					if (isset($commandKey) && isset($commandhelp[$commandKey])) {
+						if ($commandKey != $key) {
+							continue;
+						} elseif (count($commandhelp[$commandKey]) != count($commandhelp[$commandKey],1)) {
+							foreach ($commandhelp[$commandKey] as $value) {
+								$text.="{$value[0]} - {$value[1]}\n";
+							}
+							break;
+						}
 					}
 					if (!isset($value[0])) {
 						$text.="!{$key}\n";
