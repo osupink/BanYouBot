@@ -449,6 +449,10 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 						$silenceTime=0;
 					}
 					$blockQQNumber=(int)$splitarr[0];
+					if (!$isMaster && $conn->queryOne("SELECT 1 FROM bot_groupinfo WHERE group_number = {$groupNumber} AND bot_fakeadmin = {$blockQQNumber} LIMIT 1")) {
+						$text.="{$lang['not_a_true_qqnumber']}\n";
+						break 2;
+					}
 					$conn->exec("INSERT INTO bot_blockqqlist VALUES ({$groupNumber},{$blockQQNumber},{$silenceTime})");
 					break;
 				case 'blocktext':
@@ -516,6 +520,10 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 						break 2;
 					}
 					$kickQQNumber=(int)isAT($splitarr[0]);
+					if (!$isMaster && $conn->queryOne("SELECT 1 FROM bot_groupinfo WHERE group_number = {$groupNumber} AND bot_fakeadmin = {$kickQQNumber} LIMIT 1")) {
+						$text.="{$lang['usage']}{$lang['colon']}{$commandhelp['botadmin']['kick'][0]}.\n";
+						break 2;
+					}
 					Kick($groupNumber,$kickQQNumber);
 					break;
 				case 'silence':
@@ -524,6 +532,10 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 						break 2;
 					}
 					$silenceQQNumber=(int)isAT($splitarr[0]);
+					if (!$isMaster && $conn->queryOne("SELECT 1 FROM bot_groupinfo WHERE group_number = {$groupNumber} AND bot_fakeadmin = {$silenceQQNumber} LIMIT 1")) {
+						$text.="{$lang['usage']}{$lang['colon']}{$commandhelp['botadmin']['silence'][0]}.\n";
+						break 2;
+					}
 					$silenceTime=(count($splitarr) > 1) ? (int)$splitarr[1] : 1;
 					if ($silenceTime > 0 && $silenceTime <= 43200) {
 						$silenceTime*=60;
@@ -545,9 +557,13 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 						break 2;
 					}
 					if (count($splitarr) < 2) {
-						ChangeCard($selfQQ,implode(' ',$splitarr));
+						ChangeCard(($isMaster ? $selfQQ : $qqNumber),implode(' ',$splitarr));
 					} else {
 						$changeQQNumber=(!is_numeric($splitarr[0])) ? (int)isAT($splitarr[0]) : $splitarr[0];
+						if (!$isMaster && $conn->queryOne("SELECT 1 FROM bot_groupinfo WHERE group_number = {$groupNumber} AND bot_fakeadmin = {$changeQQNumber} LIMIT 1")) {
+							$text.="{$lang['usage']}{$lang['colon']}{$commandhelp['botadmin']['changecard'][0]}.\n";
+							break 2;
+						}
 						unset($splitarr[0]);
 						if ($changeQQNumber === 0) {
 							$text.="{$lang['usage']}{$lang['colon']}{$commandhelp['botadmin']['changecard'][0]}.\n";
@@ -1231,7 +1247,7 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 	return 1;
 }
 function HandleMessage($isGroup,$messages) {
-	global $groupNumber,$qqNumber;
+	global $message_id,$groupNumber,$qqNumber;
 	$text='';
 	if (count($messages) < 1) {
 		return;
