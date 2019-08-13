@@ -317,6 +317,7 @@ function ChangeCard($QQNumber,$card) {
 	if (isAnonymous($QQNumber)) {
 		return;
 	}
+	$card=rawurlencode($card);
 	file_get_contents(APIURL."/set_group_card?group_id={$groupNumber}&user_id={$QQNumber}&card={$card}");
 }
 function CheckEvent() {
@@ -544,9 +545,15 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 						break 2;
 					}
 					if (count($splitarr) < 2) {
-						ChangeCard($selfQQ,$splitarr[0]);
-					} elseif (is_numeric($splitarr[0])) {
-						ChangeCard($splitarr[0],$splitarr[1]);
+						ChangeCard($selfQQ,implode(' ',$splitarr));
+					} else {
+						$changeQQNumber=(!is_numeric($splitarr[0])) ? (int)isAT($splitarr[0]) : $splitarr[0];
+						unset($splitarr[0]);
+						if ($changeQQNumber === 0) {
+							$text.="{$lang['usage']}{$lang['colon']}{$commandhelp['botadmin']['changecard'][0]}.\n";
+							break 2;
+						}
+						ChangeCard($changeQQNumber,implode(' ',$splitarr));
 					}
 					break;
 				default:
