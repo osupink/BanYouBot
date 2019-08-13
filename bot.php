@@ -276,11 +276,11 @@ function CheckSilenceList($fullmessage) {
 					Kick($groupNumber,$qqNumber);
 					return -1;
 				}
-				if ($conn->queryOne("SELECT 1 FROM bot_groupinfo WHERE group_number = {$groupNumber} AND bot_fakeadmin = {$qqNumber} LIMIT 1")) {
-					break;
-				}
 				if ($blockTime) {
 					return $blockTime;
+				}
+				if ($conn->queryOne("SELECT 1 FROM bot_groupinfo WHERE group_number = {$groupNumber} AND bot_fakeadmin = {$qqNumber} LIMIT 1")) {
+					break;
 				}
 				$lowerfullmessage=strtolower($fullmessage);
 				if ($conn->queryOne("SELECT 1 FROM bot_blocktextlist WHERE group_number = {$groupNumber} AND LOCATE(BlockText,'{$lowerfullmessage}') > 0 LIMIT 1")) {
