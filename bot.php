@@ -565,6 +565,7 @@ function GroupCommands($splitarr,$messagearr,$messagecount,&$text) {
 					}
 					$unSilenceQQNumber=(int)isAT($splitarr[0]);
 					Silence($groupNumber,$unSilenceQQNumber,0);
+					break;
 				case 'changecard':
 					if (count($splitarr) < 1) {
 						$text.="{$lang['usage']}{$lang['colon']}{$commandhelp['botadmin']['changecard'][0]}.\n";
