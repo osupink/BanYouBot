@@ -1276,8 +1276,8 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 	return 1;
 }
 function HandleMessage($isGroup,$messages) {
-	global $message_id,$groupNumber,$qqNumber;
-	if (isBanQQ($qqNumber)) {
+	global $message_id,$groupNumber,$qqNumber,$selfQQ;
+	if ($qqNumber == $selfQQ) {
 		return;
 	}
 	$text='';
