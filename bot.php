@@ -1277,6 +1277,9 @@ function PublicCommands($isGroup,$splitarr,$messagearr,$messagecount,&$text) {
 }
 function HandleMessage($isGroup,$messages) {
 	global $message_id,$groupNumber,$qqNumber;
+	if (isBanQQ($qqNumber)) {
+		return;
+	}
 	$text='';
 	if (count($messages) < 1) {
 		return;
@@ -1295,7 +1298,7 @@ function HandleMessage($isGroup,$messages) {
 					$isSilence*=60;
 					Silence($groupNumber,$qqNumber,$isSilence);
 				}
-				die();
+				return;
 			}
 		}
 		$message=(substr($fullmessage,0,1) === '!') ? substr($fullmessage,1) : "";
@@ -1309,7 +1312,7 @@ function HandleMessage($isGroup,$messages) {
 			}
 			switch (CheckCommandBlacklist(strtolower($messagearr[0]))) {
 				case 2:
-					die();
+					return;
 				case 1:
 					continue 2;
 				case 0:
