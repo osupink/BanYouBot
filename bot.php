@@ -291,21 +291,22 @@ function CheckSilenceList($fullmessage) {
 	}
 	return 0;
 }
-function isAnonymous($QQNumber) {
-	if ($QQNumber == 80000000) {
+function isBanQQ($QQNumber) {
+	global $selfQQ, $masterQQ;
+	if ($QQNumber == 80000000 || $QQNumber == $selfQQ || $QQNumber == $masterQQ) {
 		return 1;
 	}
 	return 0;
 }
 function Silence($groupNumber,$QQNumber,$silenceTime) {
 	// 单位为秒
-	if (isAnonymous($QQNumber)) {
+	if (isBanQQ($QQNumber)) {
 		return;
 	}
 	file_get_contents(APIURL."/set_group_ban_async?group_id={$groupNumber}&user_id={$QQNumber}&duration={$silenceTime}");
 }
 function Kick($groupNumber,$QQNumber) {
-	if (isAnonymous($QQNumber)) {
+	if (isBanQQ($QQNumber)) {
 		return;
 	}
 	file_get_contents(APIURL."/set_group_kick_async?group_id={$groupNumber}&user_id={$QQNumber}");
@@ -318,7 +319,7 @@ function Announce($str) {
 }
 function ChangeCard($QQNumber,$card) {
 	global $groupNumber;
-	if (isAnonymous($QQNumber)) {
+	if (isBanQQ($QQNumber)) {
 		return;
 	}
 	$card=rawurlencode($card);
