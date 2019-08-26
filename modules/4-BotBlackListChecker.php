@@ -1,4 +1,5 @@
 <?php
+global $conn, $isMaster, $reqQQNumber, $reqGroupNumber, $reqRawMessage;
 function isBanSay() {
 	if (file_exists('bansay')) {
 		return 1;
@@ -80,12 +81,12 @@ function CheckSilenceList($fullmessage) {
 				$stmt=$conn->prepare('SELECT BlockTime FROM bot_blockqqlist WHERE group_number = ? AND BlockQQ = ? LIMIT 1');
 				if ($stmt->bind_param('ii', $reqGroupNumber, $reqQQNumber) && $stmt->execute() && $stmt->bind_result($blockTime) && $stmt->fetch()) {
 					$stmt->close();
-					if ($blockTime !== false && $blockTime == "0") {
+					if ($blockTime !== false && $blockTime == 0) {
 						Kick($reqGroupNumber,$reqQQNumber);
 						return 2;
 					}
 					if ($blockTime) {
-						Silence($reqGroupNumber, $reqQQNumber, $blockTime);
+						Silence($reqGroupNumber, $reqQQNumber, $blockTime*60);
 						return 1;
 					}
 				}
@@ -101,7 +102,7 @@ function CheckSilenceList($fullmessage) {
 				if ($stmt->bind_param('is', $reqGroupNumber, $lowerfullmessage) && $stmt->execute() && $stmt->bind_result($status) && $stmt->fetch()) {
 					$stmt->close();
 					if ($status) {
-						Silence($reqGroupNumber, $reqQQNumber, 600);
+						Silence($reqGroupNumber, $reqQQNumber, 10*60);
 						return 1;
 					}
 				}
@@ -118,13 +119,12 @@ function isBanQQ($QQNumber) {
 }
 // 防止自激
 if (isset($reqQQNumber)) {
-	if (selfQQ === $reqQQNumber) {
+	if (selfQQ === $reqQQNumber || isBanSay() || isBanQQ($reqQQNumber) || (isset($reqGroupNumber) && !isAllowGroupMessage($reqGroupNumber))) {
 		die();
 	}
-	if (isset($reqGroupNumber) && isset($reqRawMessage)) {
-		if (isBanSay() || isBanQQ($reqQQNumber) || !isAllowGroupMessage($reqGroupNumber) || CheckSilenceList($reqRawMessage)) {
-			die();
-		}
+	if (isset($reqJSONArr->message)) {
+		$reqRawMessage=decodeCQCode($reqJSONArr->message);
 	}
+	CheckSilenceList($reqRawMessage);
 }
 ?>

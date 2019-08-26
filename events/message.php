@@ -2,9 +2,10 @@
 if (!defined('BotFramework')) {
 	die();
 }
-if (!isset($reqJSONArr->message)) {
+if (!isset($reqRawMessage)) {
 	return;
 }
+global $reqRawMessage;
 function MatchCommandPrefix($str) {
 	return (substr($str, 0, 1) === '!') ? true : false;
 }
@@ -50,7 +51,6 @@ function HandleMessage($type, $rawMessageSplit) {
 		require_once("commands/{$commandType}/{$commandName}.php");
 	}
 }
-$reqRawMessage=decodeCQCode($reqJSONArr->message);
 $sendMessageBuffer='';
 $rawMessageSplit=explode("\r",$reqRawMessage);
 switch ($reqJSONArr->sub_type) {
