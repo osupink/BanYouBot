@@ -11,7 +11,7 @@ switch ($reqJSONArr->notice_type) {
 		if (!isset($reqGroupNumber,$reqQQNumber)) {
 			break;
 		}
-		if ($reqGroupNumber == mainGroupNumber) {
+		if ($reqGroupNumber === mainGroupNumber) {
 			sendGroupMessage(mainGroupNumber, "[CQ:at,qq={$reqQQNumber}] 欢迎来到 BanYou 玩家群{$lang['comma']}请将你的名片改为 osu! ID。\n要进入 BanYou{$lang['comma']}请在群文件下载客户端和使用指南。");
 		}
 		break;
