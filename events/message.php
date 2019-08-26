@@ -2,10 +2,10 @@
 if (!defined('BotFramework')) {
 	die();
 }
+global $conn, $reqJSONArr, $reqQQNumber, $reqGroupNumber, $reqRawMessage;
 if (!isset($reqRawMessage)) {
 	return;
 }
-global $reqRawMessage;
 function MatchCommandPrefix($str) {
 	return (substr($str, 0, 1) === '!') ? true : false;
 }
@@ -14,7 +14,7 @@ function TrimMultiSpace($str) {
 	return $str;
 }
 function HandleMessage($type, $rawMessageSplit) {
-	global $sendMessageBuffer, $commandName, $commandContent, $commandArr;
+	global $reqQQNumber, $reqGroupNumber, $sendMessageBuffer, $commandName, $commandContent, $commandArr;
 	// $type/0:好友消息, 1:群组消息
 	if (count($rawMessageSplit) > 0) {
 		$messageSplit=array_filter($rawMessageSplit, 'MatchCommandPrefix');
@@ -26,8 +26,8 @@ function HandleMessage($type, $rawMessageSplit) {
 		$message=substr(TrimMultiSpace(trim($message)), 1);
 		$commandSplitArg=explode(' ', $message, 2);
 		$commandName=$commandSplitArg[0];
-		if (is_file("commands/3/{$commandName}.php")) {
-			$commandType=3;
+		if (is_file("commands/10/{$commandName}.php")) {
+			$commandType=10;
 		} elseif (is_file("commands/{$type}/{$commandName}.php")) {
 			$commandType=$type;
 		} else {
@@ -49,6 +49,22 @@ function HandleMessage($type, $rawMessageSplit) {
 			}
 		}
 		require_once("commands/{$commandType}/{$commandName}.php");
+	}
+	if (!empty($sendMessageBuffer)) {
+		$sendMessageBuffer=trim($sendMessageBuffer);
+		$sendMessageBufferSplit=str_split($sendMessageBuffer,3000);
+		foreach ($sendMessageBufferSplit as $sendMessageContent) {
+			switch ($type) {
+				case 1:
+					sendGroupMessage($reqGroupNumber, $sendMessageContent);
+					break;
+				case 0:
+					sendMessage($reqQQNumber, $sendMessageContent);
+					break;
+				default:
+					break;
+			}
+		}
 	}
 }
 $sendMessageBuffer='';
