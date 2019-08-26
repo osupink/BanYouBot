@@ -1,4 +1,7 @@
 <?php
+if (!defined('BotFramework')) {
+	die();
+}
 require_once('web/include.notice.php');
 function botErrorHandler($errno,$errstr,$errfile,$errline,$errcontext) {
 	switch ($errno)

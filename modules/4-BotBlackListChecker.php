@@ -32,7 +32,7 @@ function CheckCommandBlacklist($command,$admin=1) {
 	switch ($command) {
 		case 'help':
 		case 'roll':
-		case 'weather':
+		#case 'weather':
 		case 'br':
 			break;
 		case 'sleep':
@@ -43,6 +43,7 @@ function CheckCommandBlacklist($command,$admin=1) {
 		case 'botadmin':
 			$stmt=$conn->prepare('SELECT 1 FROM bot_groupinfo WHERE group_number = ? AND bot_fakeadmin = ? LIMIT 1');
 			if ($stmt->bind_param('ii', $reqGroupNumber, $reqQQNumber) && $stmt->execute() && $stmt->bind_result($status) && $stmt->fetch()) {
+				$stmt->close();
 				if (!$status) {
 					return 1;
 				}
@@ -78,6 +79,7 @@ function CheckSilenceList($fullmessage) {
 			if (!isset($isMaster) || !$isMaster) {
 				$stmt=$conn->prepare('SELECT BlockTime FROM bot_blockqqlist WHERE group_number = ? AND BlockQQ = ? LIMIT 1');
 				if ($stmt->bind_param('ii', $reqGroupNumber, $reqQQNumber) && $stmt->execute() && $stmt->bind_result($blockTime) && $stmt->fetch()) {
+					$stmt->close();
 					if ($blockTime !== false && $blockTime == "0") {
 						Kick($reqGroupNumber,$reqQQNumber);
 						return 2;
@@ -89,6 +91,7 @@ function CheckSilenceList($fullmessage) {
 				}
 				$stmt=$conn->prepare('SELECT 1 FROM bot_groupinfo WHERE group_number = ? AND bot_fakeadmin = ? LIMIT 1');
 				if ($stmt->bind_param('ii', $reqGroupNumber, $reqQQNumber) && $stmt->execute() && $stmt->bind_result($status) && $stmt->fetch()) {
+					$stmt->close();
 					if ($status) {
 						break;
 					}
@@ -96,6 +99,7 @@ function CheckSilenceList($fullmessage) {
 				$lowerfullmessage=strtolower($fullmessage);
 				$stmt=$conn->prepare('SELECT 1 FROM bot_blocktextlist WHERE group_number = ? AND LOCATE(BlockText,?) > 0 LIMIT 1');
 				if ($stmt->bind_param('is', $reqGroupNumber, $lowerfullmessage) && $stmt->execute() && $stmt->bind_result($status) && $stmt->fetch()) {
+					$stmt->close();
 					if ($status) {
 						Silence($reqGroupNumber, $reqQQNumber, 600);
 						return 1;
@@ -113,7 +117,6 @@ function isBanQQ($QQNumber) {
 	return 0;
 }
 // 防止自激
-
 if (isset($reqQQNumber)) {
 	if (selfQQ === $reqQQNumber) {
 		die();

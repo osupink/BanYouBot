@@ -1,5 +1,6 @@
 <?php
 date_default_timezone_set('Asia/Shanghai');
+define('BotFramework', 1);
 function RequireOnceAllFilesinDir($dir) {
 	$files=scandir($dir);
 	$fileBlockList=array('.', '..');

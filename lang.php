@@ -1,4 +1,5 @@
 <?php
+global $billtypelist, $lang, $commandhelp;
 $billtypelist=array(
 	'Buy'=>'购买',
 	'Checkin'=>'免费签到',
