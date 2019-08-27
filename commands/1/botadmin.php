@@ -146,6 +146,9 @@ switch (strtolower($commandSubType)) {
 		}
 		$changeQQNumber=(!is_numeric($commandArr[0])) ? (int)isAT($commandArr[0]) : $commandArr[0];
 		if (!(is_numeric($changeQQNumber) && $changeQQNumber !== 0 && isset($commandArr[1]))) {
+			if (!$isMaster) {
+				break;
+			}
 			ChangeCard($reqGroupNumber, ($isMaster ? selfQQ : $reqQQNumber), $commandContent);
 		} else {
 			unset($commandArr[0]);
