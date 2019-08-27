@@ -23,7 +23,7 @@ function isAllowGroupMessage($groupNumber=false) {
 }
 function CheckCommandBlacklist($command,$admin=1) {
 	// 0:不在黑名单, 1:指令黑名单, 2:QQ/群组黑名单.
-	global $conn, $isMaster, $reqGroupNumber, $reqQQNumber;
+	global $conn, $isFakeAdmin, $isMaster, $reqGroupNumber, $reqQQNumber;
 	if ($isMaster && $admin) {
 		return 0;
 	}
@@ -42,19 +42,8 @@ function CheckCommandBlacklist($command,$admin=1) {
 			}
 			break;
 		case 'botadmin':
-			$stmt=$conn->prepare('SELECT 1 FROM bot_groupinfo WHERE group_number = ? AND bot_fakeadmin = ? LIMIT 1');
-			if ($stmt->bind_param('ii', $reqGroupNumber, $reqQQNumber) && $stmt->execute() && $stmt->bind_result($status) && $stmt->fetch()) {
-				$stmt->close();
-				if (!$status) {
-					return 1;
-				}
-			} else {
-				$dbError='Unknown.';
-				if ($stmt) {
-					$dbError=$stmt->error;
-					$stmt->close();
-				}
-				trigger_error("Database Error: {$dbError}", E_USER_WARNING);
+			if (!$isFakeAdmin) {
+				return 1;
 			}
 			break;
 		case 'atall':
@@ -74,7 +63,7 @@ function CheckCommandBlacklist($command,$admin=1) {
 }
 function CheckSilenceList($fullmessage) {
 	// 0:不在禁言名单, 1:在禁言名单中, 2:在黑名单中
-	global $conn, $isMaster, $reqGroupNumber, $reqQQNumber;
+	global $conn, $isMaster, $isFakeAdmin, $reqGroupNumber, $reqQQNumber;
 	switch ($fullmessage) {
 		/*
 		case '[image=A2DA722F8EAD905AC7883C6E4CDB85D3.jpg]':
@@ -84,17 +73,21 @@ function CheckSilenceList($fullmessage) {
 			break;
 		*/
 		default:
-			if (!isset($isMaster) || !$isMaster) {
+			if (!$isMaster) {
 				$stmt=$conn->prepare('SELECT BlockTime FROM bot_blockqqlist WHERE group_number = ? AND BlockQQ = ? LIMIT 1');
-				if ($stmt->bind_param('ii', $reqGroupNumber, $reqQQNumber) && $stmt->execute() && $stmt->bind_result($blockTime) && $stmt->fetch()) {
-					$stmt->close();
-					if ($blockTime !== false && $blockTime == 0) {
-						Kick($reqGroupNumber,$reqQQNumber);
-						return 2;
-					}
-					if ($blockTime) {
-						Silence($reqGroupNumber, $reqQQNumber, $blockTime*60);
-						return 1;
+				if ($stmt->bind_param('ii', $reqGroupNumber, $reqQQNumber) && $stmt->execute() && $stmt->bind_result($blockTime)) {
+					if (!($stmt->fetch() && $blockTime !== false)) {
+						$stmt->close();
+					} else {
+						$stmt->close();
+						if ($blockTime == 0) {
+							Kick($reqGroupNumber,$reqQQNumber);
+							return 2;
+						}
+						if ($blockTime) {
+							Silence($reqGroupNumber, $reqQQNumber, $blockTime*60);
+							return 1;
+						}
 					}
 				} else {
 					$dbError='Unknown.';
@@ -105,28 +98,18 @@ function CheckSilenceList($fullmessage) {
 					trigger_error("Database Error: {$dbError}", E_USER_WARNING);
 					return;
 				}
-				$stmt=$conn->prepare('SELECT 1 FROM bot_groupinfo WHERE group_number = ? AND bot_fakeadmin = ? LIMIT 1');
-				if ($stmt->bind_param('ii', $reqGroupNumber, $reqQQNumber) && $stmt->execute() && $stmt->bind_result($status) && $stmt->fetch()) {
-					$stmt->close();
-					if ($status) {
-						break;
-					}
-				} else {
-					$dbError='Unknown.';
-					if ($stmt) {
-						$dbError=$stmt->error;
-						$stmt->close();
-					}
-					trigger_error("Database Error: {$dbError}", E_USER_WARNING);
-					return;
+				if ($isFakeAdmin) {
+					break;
 				}
-				$lowerfullmessage=strtolower($fullmessage);
+				$lowerfullmessage=base64_encode(strtolower($fullmessage));
 				$stmt=$conn->prepare('SELECT 1 FROM bot_blocktextlist WHERE group_number = ? AND LOCATE(BlockText,?) > 0 LIMIT 1');
-				if ($stmt->bind_param('is', $reqGroupNumber, $lowerfullmessage) && $stmt->execute() && $stmt->bind_result($status) && $stmt->fetch()) {
-					$stmt->close();
-					if ($status) {
+				if ($stmt->bind_param('is', $reqGroupNumber, $lowerfullmessage) && $stmt->execute() && $stmt->bind_result($status)) {
+					if ($stmt->fetch() && $status) {
+						$stmt->close();
 						Silence($reqGroupNumber, $reqQQNumber, 10*60);
 						return 1;
+					} else {
+						$stmt->close();
 					}
 				} else {
 					$dbError='Unknown.';
