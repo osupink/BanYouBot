@@ -101,7 +101,7 @@ function CheckSilenceList($fullmessage) {
 				if ($isFakeAdmin) {
 					break;
 				}
-				$lowerfullmessage=base64_encode(strtolower($fullmessage));
+				$lowerfullmessage=utf8_encode(strtolower($fullmessage));
 				$stmt=$conn->prepare('SELECT 1 FROM bot_blocktextlist WHERE group_number = ? AND LOCATE(BlockText,?) > 0 LIMIT 1');
 				if ($stmt->bind_param('is', $reqGroupNumber, $lowerfullmessage) && $stmt->execute() && $stmt->bind_result($status)) {
 					if ($stmt->fetch() && $status) {

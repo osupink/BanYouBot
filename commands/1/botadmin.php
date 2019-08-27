@@ -41,7 +41,7 @@ switch (strtolower($commandSubType)) {
 			$sendMessageBuffer.="{$lang['usage']}{$lang['colon']}{$commandhelp['botadmin']['blocktext'][0]}.\n";
 			return;
 		}
-		$commandContentBase64=base64_encode(strtolower($commandContent));
+		$commandContentBase64=utf8_encode(strtolower($commandContent));
 		$stmt=$conn->prepare('INSERT INTO bot_blocktextlist VALUES (?,?)');
 		$stmt->bind_param('is', $reqGroupNumber, $commandContentBase64);
 		$stmt->execute();
@@ -63,7 +63,7 @@ switch (strtolower($commandSubType)) {
 			$sendMessageBuffer.="{$lang['usage']}{$lang['colon']}{$commandhelp['botadmin']['unblocktext'][0]}.\n";
 			return;
 		}
-		$commandContentBase64=base64_encode(strtolower($commandContent));
+		$commandContentBase64=utf8_encode(strtolower($commandContent));
 		$stmt=$conn->prepare('DELETE FROM bot_blocktextlist WHERE group_number = ? AND BlockText = ? LIMIT 1');
 		$stmt->bind_param('is', $reqGroupNumber, $commandContentBase64);
 		$stmt->execute();
@@ -105,7 +105,7 @@ switch (strtolower($commandSubType)) {
 			return;
 		}
 		foreach ($blockTextList as $value) {
-			$value['BlockText']=base64_decode($value['BlockText']);
+			$value['BlockText']=utf8_decode($value['BlockText']);
 			$sendMessageBuffer.="Text: {$value['BlockText']}.\n";
 		}
 		break;
