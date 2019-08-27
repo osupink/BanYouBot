@@ -153,7 +153,7 @@ switch (strtolower($commandSubType)) {
 		}
 		break;
 	default:
-		break;
+		return;
 }
 $sendMessageBuffer.="OK.\n";
 ?>
