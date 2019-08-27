@@ -19,8 +19,9 @@ function Silence($groupNumber, $QQNumber, $silenceTime) {
 function Kick($groupNumber, $QQNumber) {
 	file_get_contents(APIURL . "/set_group_kick_async?group_id={$groupNumber}&user_id={$QQNumber}");
 }
-function Announce($groupNumberList, $str) {
-	foreach ($groupNumberList as $value) {
+function Announce($str) {
+	$str=trim($str);
+	foreach (groupNumberList as $value) {
 		sendGroupMessage($value, $str);
 	}
 }

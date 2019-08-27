@@ -12,14 +12,17 @@ function TrimMultiSpace($str) {
 	$str=preg_replace('/ {2,}/', ' ', $str);
 	return $str;
 }
-function HandleMessage($type, $rawMessageSplit) {
-	global $conn, $reqQQNumber, $reqGroupNumber, $sendMessageBuffer, $commandName, $commandContent, $commandFullContent, $commandArr, $commandSubType;
-	// $type/0:好友消息, 1:群组消息
+function HandleMessage($messageType, $rawMessageSplit) {
+	global $conn, $reqQQNumber, $reqGroupNumber, $commandName, $commandContent, $commandFullContent, $commandArr, $commandSubType;
+	// $messageType/0:好友消息, 1:群组消息
 	if (count($rawMessageSplit) > 0) {
 		$messageSplit=array_filter($rawMessageSplit, 'MatchCommandPrefix');
 	}
 	if (count($messageSplit) < 1) {
 		return;
+	}
+	if (!isset($sendMessageBuffer)) {
+		$sendMessageBuffer='';
 	}
 	foreach ($messageSplit as $message) {
 		$message=substr(TrimMultiSpace(trim($message)), 1);
@@ -27,8 +30,8 @@ function HandleMessage($type, $rawMessageSplit) {
 		$commandName=$commandSplitArg[0];
 		if (is_file("commands/10/{$commandName}.php")) {
 			$commandType=10;
-		} elseif (is_file("commands/{$type}/{$commandName}.php")) {
-			$commandType=$type;
+		} elseif (is_file("commands/{$messageType}/{$commandName}.php")) {
+			$commandType=$messageType;
 		} else {
 			continue;
 		}
@@ -63,7 +66,7 @@ function HandleMessage($type, $rawMessageSplit) {
 		$sendMessageBuffer=trim($sendMessageBuffer);
 		$sendMessageBufferSplit=str_split($sendMessageBuffer, 3000);
 		foreach ($sendMessageBufferSplit as $sendMessageContent) {
-			switch ($type) {
+			switch ($messageType) {
 				case 1:
 					sendGroupMessage($reqGroupNumber, $sendMessageContent);
 					break;
@@ -76,7 +79,6 @@ function HandleMessage($type, $rawMessageSplit) {
 		}
 	}
 }
-$sendMessageBuffer='';
 $rawMessageSplit=explode("\r", $reqRawMessage);
 switch ($reqJSONArr->sub_type) {
 	case 'friend':

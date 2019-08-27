@@ -36,7 +36,22 @@ function GetUsernameByQQ($QQNumber) {
 	global $conn;
 	if (!empty($QQNumber)) {
 		if (is_numeric($QQNumber)) {
-			$username=$conn->queryOne("SELECT username FROM osu_users WHERE user_qq={$QQNumber} LIMIT 1");
+			$stmt=$conn->prepare('SELECT username FROM osu_users WHERE user_qq = ? LIMIT 1');
+			if ($stmt->bind_param('i', $QQNumber) && $stmt->execute() && $stmt->bind_result($username)) {
+				if (!$stmt->fetch()) {
+					$stmt->close();
+					return 0;
+				}
+				$stmt->close();
+			} else {
+				$dbError='Unknown.';
+				if ($stmt) {
+					$dbError=$stmt->error;
+					$stmt->close();
+				}
+				trigger_error("Database Error: {$dbError}", E_USER_WARNING);
+				return;
+			}
 		}
 		if (!empty($username)) {
 			return $username;
