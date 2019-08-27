@@ -1,10 +1,7 @@
 <?php
 global $conn, $isMaster, $reqQQNumber, $reqGroupNumber, $reqRawMessage;
 function isBanSay() {
-	if (file_exists('bansay')) {
-		return 1;
-	}
-	return 0;
+	return file_exists('bansay');
 }
 function ChangeSayStatus() {
 	if (isBanSay()) {
@@ -133,7 +130,7 @@ function isBanQQ($QQNumber) {
 }
 // 防止自激
 if (isset($reqQQNumber)) {
-	if (isBanSay() || isBanQQ($reqQQNumber) || (isset($reqGroupNumber) && !isAllowGroupMessage($reqGroupNumber))) {
+	if (isBanQQ($reqQQNumber) || (isset($reqGroupNumber) && !isAllowGroupMessage($reqGroupNumber))) {
 		die();
 	}
 	if (isset($reqJSONArr->message)) {

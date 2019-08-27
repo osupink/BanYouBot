@@ -28,6 +28,9 @@ function HandleMessage($messageType, $rawMessageSplit) {
 		$message=substr(TrimMultiSpace(trim($message)), 1);
 		$commandSplitArg=explode(' ', $message, 3);
 		$commandName=$commandSplitArg[0];
+		if (strtolower($commandName) !== 'bansay' && isBanSay()) {
+			continue;
+		}
 		if (is_file("commands/10/{$commandName}.php")) {
 			$commandType=10;
 		} elseif (is_file("commands/{$messageType}/{$commandName}.php")) {
@@ -61,6 +64,7 @@ function HandleMessage($messageType, $rawMessageSplit) {
 			$commandFullContent=$commandSubType;
 		}
 		require("commands/{$commandType}/{$commandName}.php");
+		unset($commandSplitArg, $commandName, $commandSubType, $commandFullContent, $commandArr, $commandFullContent);
 	}
 	if (!empty($sendMessageBuffer)) {
 		$sendMessageBuffer=trim($sendMessageBuffer);
