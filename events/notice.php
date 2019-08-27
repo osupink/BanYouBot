@@ -5,7 +5,7 @@ if (!defined('BotFramework')) {
 if (!isset($reqJSONArr->notice_type)) {
 	return;
 }
-global $conn, $lang;
+global $lang;
 switch ($reqJSONArr->notice_type) {
 	case 'group_increase':
 		if (!isset($reqGroupNumber,$reqQQNumber)) {

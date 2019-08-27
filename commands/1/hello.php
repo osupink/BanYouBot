@@ -1,6 +1,6 @@
 <?php
 if (!defined('BotFramework')) {
-	die();
+    die();
 }
-$sendMessageBuffer.="New Gen BanYouBot, it works!g\n";
+$sendMessageBuffer .= "New Gen BanYouBot, it works!g\n";
 ?>

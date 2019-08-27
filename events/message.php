@@ -2,7 +2,6 @@
 if (!defined('BotFramework')) {
 	die();
 }
-global $conn, $reqJSONArr, $reqQQNumber, $reqGroupNumber, $reqRawMessage;
 if (!isset($reqRawMessage)) {
 	return;
 }
@@ -14,7 +13,7 @@ function TrimMultiSpace($str) {
 	return $str;
 }
 function HandleMessage($type, $rawMessageSplit) {
-	global $reqQQNumber, $reqGroupNumber, $sendMessageBuffer, $commandName, $commandContent, $commandArr;
+	global $conn, $reqQQNumber, $reqGroupNumber, $sendMessageBuffer, $commandName, $commandContent, $commandArr, $commandSubType, $isMaster, $lang, $commandHelp;
 	// $type/0:好友消息, 1:群组消息
 	if (count($rawMessageSplit) > 0) {
 		$messageSplit=array_filter($rawMessageSplit, 'MatchCommandPrefix');
@@ -46,13 +45,16 @@ function HandleMessage($type, $rawMessageSplit) {
 			$commandContent=$commandSplitArg[1];
 			if (count($commandSplitArg) > 2) {
 				$commandArr=explode(' ', $commandContent);
+				$commandSubType=$commandArr[0];
+			} else {
+				$commandSubType=$commandContent;
 			}
 		}
 		require_once("commands/{$commandType}/{$commandName}.php");
 	}
 	if (!empty($sendMessageBuffer)) {
 		$sendMessageBuffer=trim($sendMessageBuffer);
-		$sendMessageBufferSplit=str_split($sendMessageBuffer,3000);
+		$sendMessageBufferSplit=str_split($sendMessageBuffer, 3000);
 		foreach ($sendMessageBufferSplit as $sendMessageContent) {
 			switch ($type) {
 				case 1:
@@ -68,7 +70,7 @@ function HandleMessage($type, $rawMessageSplit) {
 	}
 }
 $sendMessageBuffer='';
-$rawMessageSplit=explode("\r",$reqRawMessage);
+$rawMessageSplit=explode("\r", $reqRawMessage);
 switch ($reqJSONArr->sub_type) {
 	case 'friend':
 		HandleMessage(0, $rawMessageSplit);

@@ -17,6 +17,13 @@ switch ($reqJSONArr->request_type) {
 			if ($blockTime !== false && $blockTime == 0) {
 				$arr=array('approve'=>false,'reason'=>"因为你在机器人黑名单的列表中{$lang['comma']}所以你被拒绝加入群");
 			}
+		} else {
+			$dbError='Unknown.';
+			if ($stmt) {
+				$dbError=$stmt->error;
+				$stmt->close();
+			}
+			trigger_error("Database Error: {$dbError}", E_USER_WARNING);
 		}
 		break;
 	default:

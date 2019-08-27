@@ -48,6 +48,13 @@ function CheckCommandBlacklist($command,$admin=1) {
 				if (!$status) {
 					return 1;
 				}
+			} else {
+				$dbError='Unknown.';
+				if ($stmt) {
+					$dbError=$stmt->error;
+					$stmt->close();
+				}
+				trigger_error("Database Error: {$dbError}", E_USER_WARNING);
 			}
 			break;
 		case 'atall':
@@ -89,6 +96,14 @@ function CheckSilenceList($fullmessage) {
 						Silence($reqGroupNumber, $reqQQNumber, $blockTime*60);
 						return 1;
 					}
+				} else {
+					$dbError='Unknown.';
+					if ($stmt) {
+						$dbError=$stmt->error;
+						$stmt->close();
+					}
+					trigger_error("Database Error: {$dbError}", E_USER_WARNING);
+					return;
 				}
 				$stmt=$conn->prepare('SELECT 1 FROM bot_groupinfo WHERE group_number = ? AND bot_fakeadmin = ? LIMIT 1');
 				if ($stmt->bind_param('ii', $reqGroupNumber, $reqQQNumber) && $stmt->execute() && $stmt->bind_result($status) && $stmt->fetch()) {
@@ -96,6 +111,14 @@ function CheckSilenceList($fullmessage) {
 					if ($status) {
 						break;
 					}
+				} else {
+					$dbError='Unknown.';
+					if ($stmt) {
+						$dbError=$stmt->error;
+						$stmt->close();
+					}
+					trigger_error("Database Error: {$dbError}", E_USER_WARNING);
+					return;
 				}
 				$lowerfullmessage=strtolower($fullmessage);
 				$stmt=$conn->prepare('SELECT 1 FROM bot_blocktextlist WHERE group_number = ? AND LOCATE(BlockText,?) > 0 LIMIT 1');
@@ -105,6 +128,14 @@ function CheckSilenceList($fullmessage) {
 						Silence($reqGroupNumber, $reqQQNumber, 10*60);
 						return 1;
 					}
+				} else {
+					$dbError='Unknown.';
+					if ($stmt) {
+						$dbError=$stmt->error;
+						$stmt->close();
+					}
+					trigger_error("Database Error: {$dbError}", E_USER_WARNING);
+					return;
 				}
 			}
 			break;

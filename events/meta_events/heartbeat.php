@@ -14,17 +14,29 @@ function CheckEvent() {
 			extract($event);
 			setGameMode($mode);
 			$stmt=$conn->prepare("SELECT score_id, rank, enabled_mods, pp, score FROM {$highScoreTable} WHERE user_id = ? AND beatmap_id = ? LIMIT 1");
-			$stmt->bind_param('ii', $user_id, $beatmap_id);
-			$stmt->execute();
-			$stmt->bind_result($scoreID,$rank,$modsnumber,$finalpp,$score);
-			$stmt->fetch();
-			$stmt->close();
+			if ($stmt->bind_param('ii', $user_id, $beatmap_id) && $stmt->execute() && $stmt->bind_result($scoreID,$rank,$modsnumber,$finalpp,$score) && $stmt->fetch()) {
+				$stmt->close();
+			} else {
+				$dbError='Unknown.';
+				if ($stmt) {
+					$dbError=$stmt->error;
+					$stmt->close();
+				}
+				trigger_error("Database Error: {$dbError}", E_USER_WARNING);
+				return;
+			}
 			$stmt=$conn->prepare("SELECT pp FROM {$scoreTable} WHERE score_id = ? LIMIT 1");
-			$stmt->bind_param('i', $scoreID);
-			$stmt->execute();
-			$stmt->bind_result($pp);
-			$stmt->fetch();
-			$stmt->close();
+			if ($stmt->bind_param('i', $scoreID) && $stmt->execute() && $stmt->bind_result($pp) && $stmt->fetch()) {
+				$stmt->close();
+			} else {
+				$dbError='Unknown.';
+				if ($stmt) {
+					$dbError=$stmt->error;
+					$stmt->close();
+				}
+				trigger_error("Database Error: {$dbError}", E_USER_WARNING);
+				return;
+			}
 			$rank=str_replace('H','+Hidden',str_replace('X','SS',$rank));
 			if ($mode == 2) {
 				$fullpptext="{$lang['score']}{$lang['colon']}{$score}";
