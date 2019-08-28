@@ -3,7 +3,7 @@ if (!defined('BotFramework')) {
 	die();
 }
 function CheckEvent() {
-	global $conn, $scoreTable, $highScoreTable;
+	global $conn, $lang, $scoreTable, $highScoreTable;
 	if (file_exists('lastEventID')) {
 		$lastEventIDFile=fopen('lastEventID','r+');
 		flock($lastEventIDFile,LOCK_EX);
