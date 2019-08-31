@@ -34,7 +34,7 @@ function CheckCommandBlacklist($command,$admin=1) {
 		case 'br':
 			break;
 		case 'sleep':
-			if (!in_array($reqGroupNumber, groupNumberList)) {
+			if (isset($reqGroupNumber) && !in_array($reqGroupNumber, groupNumberList)) {
 				return 2;
 			}
 			break;
@@ -51,7 +51,7 @@ function CheckCommandBlacklist($command,$admin=1) {
 			return 1;
 			break;
 		default:
-			if (!isAllowGroupMessage($reqGroupNumber)) {
+			if (isset($reqGroupNumber) && !isAllowGroupMessage($reqGroupNumber)) {
 				return 2;
 			}
 			break;
