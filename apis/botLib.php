@@ -25,6 +25,10 @@ function Announce($str) {
 		sendGroupMessage($value, $str);
 	}
 }
+function Debug($str) {
+	$str=trim($str);
+	sendGroupMessage(devGroupNumber, $str);
+}
 function ChangeCard($groupNumber, $qqNumber, $card) {
 	$card = rawurlencode($card);
 	file_get_contents(APIURL . "/set_group_card_async?group_id={$groupNumber}&user_id={$qqNumber}&card={$card}");

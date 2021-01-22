@@ -1,8 +1,8 @@
 <?php
-global $commandhelp;
+global $commandhelp, $isMaster, $isFakeAdmin;
 $allowCheckAdmin=0;
 if (isset($commandFullContent)) {
-	if ($commandFullContent == 1) {
+	if ($commandFullContent == 1 && ($isMaster || $isFakeAdmin)) {
 		$allowCheckAdmin=1;
 	} elseif (isset($commandhelp[$commandFullContent]) && (is_file("commands/10/{$commandFullContent}.php") || is_file("commands/{$messageType}/{$commandFullContent}.php"))) {
 		$commandKey=$commandFullContent;

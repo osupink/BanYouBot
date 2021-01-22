@@ -42,7 +42,7 @@ function HandleMessage($messageType, $rawMessageSplit) {
 			case 2:
 				die();
 			case 1:
-				continue;
+				continue 2;
 			case 0:
 			default:
 				break;
@@ -83,7 +83,7 @@ function HandleMessage($messageType, $rawMessageSplit) {
 		}
 	}
 }
-$rawMessageSplit=explode("\r", $reqRawMessage);
+$rawMessageSplit=explode("\n", $reqRawMessage);
 switch ($reqJSONArr->sub_type) {
 	case 'friend':
 		HandleMessage(0, $rawMessageSplit);

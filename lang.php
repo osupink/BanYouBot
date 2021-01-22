@@ -12,7 +12,6 @@ $billtypelist=array(
 );
 $lang=array(
 	'need_bindid'=>'该指令需要绑定 BanYou 账号才能继续使用，请使用 !bindid 指令来进行绑定.',
-	'fake_admin'=>'你是假的管理员！',
 	'type'=>'类型',
 	'money'=>'金额',
 	'colon'=>'：',
@@ -108,15 +107,6 @@ $commandhelp=array(
 		'balance'=>array('!bancoin balance','显示我的余额'),
 		'transfer'=>array('!bancoin transfer <QQ> <BanCoin 数量>','给指定 QQ 转账指定数量的 BanCoin')
 	),
-	'br'=>array('!br [Mode:0 (STD), 1 (Taiko), 2 (Catch The Beat), 3 (osu!mania)]','查看我在 BanYou 的最近游玩'),
-	'bp'=>array('!bp <BanYou 账号名> [Mode:0 (STD), 1 (Taiko), 2 (Catch The Beat), 3 (osu!mania)]','列出指定玩家的最佳成绩'),
-	'roll'=>array('!roll [最大随机数]','得到从 1 到指定数字的随机数(默认的数字是 100)'),
-	'stats'=>array('!stats <BanYou 账号名> [Mode:0 (STD), 1 (Taiko), 2 (Catch The Beat), 3 (osu!mania)]','得到指定玩家的游玩数据'),
-	'sleep'=>array('!sleep [时间: 默认 = 720 分钟(12 小时), 最大 <= 1440 分钟]','让我好好睡个觉，谁也别吵我'),
-	'bindid'=>array('!bindid <BanYou 账号名>[:BanYou 账号密码(仅私聊内可用)]','绑定 BanYou ID'),
-	'checkin'=>array('!checkin','签到并获得 BanCoin'),
-	'friends'=>array('!friends [BanYou 账号名]','查看我在 BanYou 的好友列表'),
-	/*'weather'=>array('!weather <城市名>','查看指定城市的天气预报'),*/
 	'botadmin'=>array(
 		'kick'=>array('!botadmin kick <QQ>','将指定 QQ 踢出群'),
 		'silence'=>array('!botadmin silence <QQ> [禁言时间(分钟)]','将指定 QQ 禁言(默认 1 分钟)'),
@@ -128,6 +118,16 @@ $commandhelp=array(
 		'blockqqlist'=>array('!botadmin blockqqlist','列出本群的 QQ 黑名单'),
 		'blocktextlist'=>array('!botadmin blocktextlist','列出本群的文本黑名单'),
 		'changecard'=>array('!botadmin changecard [QQ] <名片>','修改 Bot/指定 QQ 的名片')
-	)
+	),
+	'atall'=>array('!atall','艾特全体成员'),
+	'checkin'=>array('!checkin','签到并获得 BanCoin'),
+	'friends'=>array('!friends [BanYou 账号名]','查看我在 BanYou 的好友列表'),
+	'roll'=>array('!roll [最大随机数]','得到从 1 到指定数字的随机数(默认的数字是 100)'),
+	'bindid'=>array('!bindid <BanYou 账号名>[:BanYou 账号密码(仅私聊内可用)]','绑定 BanYou ID'),
+	'sleep'=>array('!sleep [时间: 默认 = 720 分钟(12 小时), 最大 <= 1440 分钟]','让我好好睡个觉，谁也别吵我'),
+	'br'=>array('!br [Mode:0 (STD), 1 (Taiko), 2 (Catch The Beat), 3 (osu!mania)]','查看我在 BanYou 的最近游玩'),
+	'bp'=>array('!bp <BanYou 账号名> [Mode:0 (STD), 1 (Taiko), 2 (Catch The Beat), 3 (osu!mania)]','列出指定玩家的最佳成绩'),
+	'stats'=>array('!stats <BanYou 账号名> [Mode:0 (STD), 1 (Taiko), 2 (Catch The Beat), 3 (osu!mania)]','得到指定玩家的游玩数据')
+	/*'weather'=>array('!weather <城市名>','查看指定城市的天气预报'),*/
 );
 ?>

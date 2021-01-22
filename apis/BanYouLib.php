@@ -75,14 +75,6 @@ function GetUsernameByQQ($QQNumber) {
 					return 0;
 				}
 				$stmt->close();
-			} else {
-				$dbError='Unknown.';
-				if ($stmt) {
-					$dbError=$stmt->error;
-					$stmt->close();
-				}
-				trigger_error("Database Error: {$dbError}", E_USER_WARNING);
-				return;
 			}
 		}
 		if (!empty($username)) {
@@ -94,8 +86,14 @@ function GetUsernameByQQ($QQNumber) {
 function GetQQByUsername($username) {
 	global $conn;
 	if (!empty($username)) {
-		$username=sqlstr($username);
-		$QQ=$conn->queryOne("SELECT user_qq FROM osu_users WHERE username='{$username}' LIMIT 1");
+		$stmt=$conn->prepare('SELECT user_qq FROM osu_users WHERE username=? LIMIT 1');
+		if ($stmt->bind_param('s', $username) && $stmt->execute() && $stmt->bind_result($QQ)) {
+			if (!$stmt->fetch()) {
+				$stmt->close();
+				return 0;
+			}
+			$stmt->close();
+		}
 		if (!empty($QQ)) {
 			return $QQ;
 		}

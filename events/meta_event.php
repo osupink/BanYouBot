@@ -2,7 +2,10 @@
 if (!defined('BotFramework')) {
 	die();
 }
-if (isset($reqJSONArr->meta_event_type) && strtolower($reqJSONArr->meta_event_type) === 'heartbeat') {
-	require_once('meta_events/heartbeat.php');
+if (isset($reqJSONArr->meta_event_type)) {
+	$event=strtolower($reqJSONArr->meta_event_type);
+	if (is_file("meta_events/{$event}.php")) {
+		require_once("meta_events/{$event}.php");
+	}
 }
 ?>

@@ -1,6 +1,5 @@
 <?php
-global $isMaster;
-if (!$isMaster || !isset($commandFullContent)) {
+if (!isset($commandFullContent)) {
 	return;
 }
 $sendMessageBuffer.=$commandFullContent."\n";

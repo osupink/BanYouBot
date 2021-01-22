@@ -1,5 +1,5 @@
 <?php
-global $conn, $isMaster, $reqQQNumber, $reqGroupNumber, $reqRawMessage;
+global $conn, $isMaster, $isFakeAdmin, $reqQQNumber, $reqGroupNumber, $reqRawMessage;
 function isBanSay() {
 	return file_exists('bansay');
 }
@@ -18,9 +18,9 @@ function isAllowGroupMessage($groupNumber=false) {
 	}
 	return in_array($groupNumber, groupNumberList);
 }
-function CheckCommandBlacklist($command,$admin=1) {
+function CheckCommandBlacklist($command, $admin=1) {
 	// 0:不在黑名单, 1:指令黑名单, 2:QQ/群组黑名单.
-	global $conn, $isFakeAdmin, $isMaster, $reqGroupNumber, $reqQQNumber;
+	global $conn, $isMaster, $isFakeAdmin, $reqGroupNumber, $reqQQNumber;
 	if ($isMaster && $admin) {
 		return 0;
 	}
@@ -33,17 +33,13 @@ function CheckCommandBlacklist($command,$admin=1) {
 		#case 'weather':
 		case 'br':
 			break;
-		case 'sleep':
-			if (isset($reqGroupNumber) && !in_array($reqGroupNumber, groupNumberList)) {
-				return 2;
-			}
-			break;
+		case 'say':
+		case 'atall':
 		case 'botadmin':
 			if (!$isFakeAdmin) {
 				return 1;
 			}
 			break;
-		case 'atall':
 		case 'getkey':
 		case 'bansay':
 		case 'fs':

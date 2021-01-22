@@ -2,11 +2,7 @@
 if (!defined('BotFramework')) {
 	die();
 }
-global $lang, $isMaster, $commandhelp, $isFakeAdmin;
-if (!$isMaster && !$isFakeAdmin) {
-	$sendMessageBuffer.="{$lang['fake_admin']}\n";
-	return;
-}
+global $lang, $isMaster, $commandhelp;
 if (!isset($commandSubType)) {
 	foreach ($commandhelp['botadmin'] as $value) {
 		$sendMessageBuffer.="{$value[0]} - {$value[1]}\n";
@@ -144,13 +140,11 @@ switch (strtolower($commandSubType)) {
 			$sendMessageBuffer.="{$lang['usage']}{$lang['colon']}{$commandhelp['botadmin']['changecard'][0]}.\n";
 			return;
 		}
-		$changeQQNumber=(!is_numeric($commandArr[0])) ? (int)isAT($commandArr[0]) : $commandArr[0];
-		if (!(is_numeric($changeQQNumber) && $changeQQNumber !== 0 && isset($commandArr[1]))) {
-			if (!$isMaster) {
-				break;
+		$changeQQNumber=(int)((!is_numeric($commandArr[0])) ? isAT($commandArr[0]) : $commandArr[0]);
+		if ($changeQQNumber) {
+			if (!$isMaster && $changeQQNumber === selfQQ) {
+				return;
 			}
-			ChangeCard($reqGroupNumber, ($isMaster ? selfQQ : $reqQQNumber), $commandContent);
-		} else {
 			unset($commandArr[0]);
 			ChangeCard($reqGroupNumber, $changeQQNumber, implode(' ', $commandArr));
 		}
