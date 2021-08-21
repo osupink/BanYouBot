@@ -14,6 +14,7 @@ $lang=array(
 	'need_bindid'=>'该指令需要绑定 BanYou 账号才能继续使用，请使用 !bindid 指令来进行绑定.',
 	'type'=>'类型',
 	'money'=>'金额',
+	'first'=>'首次',
 	'colon'=>'：',
 	'comma'=>'，',
 	'usage'=>'用法',
@@ -103,7 +104,7 @@ $commandhelp=array(
 	),
 	'bancoin'=>array(
 		'bill'=>array('!bancoin bill','列出我的 BanCoin 账单'),
-		/* 'rank'=>array('!bancoin rank','查看 BanCoin 余额排名(仅群组内可用)'), */
+		'rank'=>array('!bancoin rank','查看 BanCoin 余额排名(仅群组内可用)'),
 		'balance'=>array('!bancoin balance','显示我的余额'),
 		'transfer'=>array('!bancoin transfer <QQ> <BanCoin 数量>','给指定 QQ 转账指定数量的 BanCoin')
 	),

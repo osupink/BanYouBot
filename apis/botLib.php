@@ -22,7 +22,9 @@ function Kick($groupNumber, $QQNumber) {
 function Announce($str) {
 	$str=trim($str);
 	foreach (groupNumberList as $value) {
-		sendGroupMessage($value, $str);
+		if (!in_array($value, disableNotificationGroupNumberList)) {
+			sendGroupMessage($value, $str);
+		}
 	}
 }
 function Debug($str) {

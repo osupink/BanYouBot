@@ -2,6 +2,7 @@
 if (!defined('BotFramework')) {
 	die();
 }
+chdir(__DIR__);
 function CheckEvent() {
 	global $conn, $lang, $scoreTable, $highScoreTable;
 	if (file_exists('lastEventID')) {
@@ -64,7 +65,7 @@ function CheckEvent() {
 			$text=str_replace('{total_length}',$total_length,$text);
 			$text=str_replace('{mods}',getShortModString($modsnumber,0),$text);
 			foreach (groupNumberList as $groupNumber) {
-				if ($groupNumber == devGroupNumber) {
+				if (in_array($groupNumber, disableNotificationGroupNumberList)) {
 					continue;
 				}
 				sendGroupMessage($groupNumber, $text);
@@ -75,9 +76,9 @@ function CheckEvent() {
 	if (isset($latestEventID)) {
 		rewind($lastEventIDFile);
 		fwrite($lastEventIDFile, $latestEventID);
+		flock($lastEventIDFile, LOCK_UN);
+		fclose($lastEventIDFile);
 	}
-	flock($lastEventIDFile, LOCK_UN);
-	fclose($lastEventIDFile);
 }
 CheckEvent();
 ?>

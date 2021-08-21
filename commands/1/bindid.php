@@ -1,10 +1,11 @@
 <?php
-global $lang, $commandhelp, $reqQQNumber;
+global $lang, $commandhelp;
 if (!isset($commandFullContent)) {
 	$sendMessageBuffer.="{$lang['usage']}{$lang['colon']}{$commandhelp['bindid'][0]}.\n";
 	return;
 }
-if (GetQQByUsername($commandFullContent) !== 0) {
+$userArr=explode(':', $commandFullContent, 2);
+if (GetQQByUsername((count($userArr) < 2 ? $commandFullContent : $userArr[0])) !== 0) {
 	$sendMessageBuffer.="{$lang['username_has_been_bound']}\n";
 	return;
 }
@@ -13,7 +14,6 @@ if (GetUsernameByQQ($reqQQNumber) !== 0) {
 	return;
 }
 $othersql='';
-$userArr=explode(':', $commandFullContent, 2);
 if ((isset($isGroup) && $isGroup === 0) && count($userArr) > 1) {
 	$username=$userArr[0];
 	$password=md5($userArr[1]);
