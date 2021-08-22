@@ -21,6 +21,9 @@ switch (strtolower($commandSubType)) {
 			} elseif ($value['stock'] < 1) {
 				continue;
 			}
+			if ($value['money'] == 0) {
+				$value['money']=$lang['free'];
+			}
 			$i++;
 			$sendMessageBuffer.="{$i}. {$lang['shorter_goods_name']}{$lang['colon']}{$value['name']}{$lang['comma']}{$lang['goods_name']}{$lang['colon']}{$value['callname']}{$lang['comma']}{$lang['stock']}{$lang['colon']}{$value['stock']}{$lang['comma']}{$lang['price']}{$lang['colon']}{$value['money']}.\n";
 		}
