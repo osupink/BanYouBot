@@ -105,15 +105,15 @@ $commandhelp=array(
 	),
 	'bancoin'=>array(
 		'bill'=>array('!bancoin bill','列出我的 BanCoin 账单'),
-		'rank'=>array('!bancoin rank','查看 BanCoin 余额排名(仅群组内可用)'),
+		'rank'=>array('!bancoin rank','查看 BanCoin 余额排名 (仅群组内可用)'),
 		'balance'=>array('!bancoin balance','显示我的余额'),
 		'transfer'=>array('!bancoin transfer <QQ> <BanCoin 数量>','给指定 QQ 转账指定数量的 BanCoin')
 	),
 	'botadmin'=>array(
 		'kick'=>array('!botadmin kick <QQ>','将指定 QQ 踢出群'),
-		'silence'=>array('!botadmin silence <QQ> [禁言时间(分钟)]','将指定 QQ 禁言(默认 1 分钟)'),
+		'silence'=>array('!botadmin silence <QQ> [禁言时间 (分钟)]','将指定 QQ 禁言 (默认 1 分钟)'),
 		'unsilence'=>array('!botadmin unsilence <QQ>','将指定 QQ 解除禁言'),
-		'blockqq'=>array('!botadmin blockqq <QQ> [禁言时间(分钟)]','将指定 QQ 拉入禁言/踢人黑名单'),
+		'blockqq'=>array('!botadmin blockqq <QQ> [禁言时间 (分钟)]','将指定 QQ 拉入禁言/踢人黑名单'),
 		'blocktext'=>array('!botadmin blocktext <文本>','将指定文本加入黑名单'),
 		'unblockqq'=>array('!botadmin unblockqq <QQ>','将指定 QQ 从黑名单中移出'),
 		'unblocktext'=>array('!botadmin unblocktext <文本>','将指定文本从黑名单中移出'),
