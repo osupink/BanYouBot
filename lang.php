@@ -80,6 +80,7 @@ $lang=array(
 	'delete_store_bill_failed'=>'删除购买记录失败',
 	'deduct_money_and_provide_goods_succeed'=>'已扣款并交付商品',
 	'have_not_this_goods_in_store'=>'商店内没有这件商品',
+	'have_not_any_goods_in_store'=>'商店内没有任何商品',
 	'deducted_+_money'=>'已扣款 %s 个 BanCoin.',
 	'do_not_checkin_again'=>'请勿再次签到.',
 	'checkin_succeed'=>'签到成功',
