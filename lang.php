@@ -124,9 +124,9 @@ $commandhelp=array(
 	'atall'=>array('!atall','艾特全体成员'),
 	'checkin'=>array('!checkin','签到并获得 BanCoin'),
 	'friends'=>array('!friends [BanYou 账号名]','查看我在 BanYou 的好友列表'),
-	'roll'=>array('!roll [最大随机数]','得到从 1 到指定数字的随机数(默认的数字是 100)'),
-	'bindid'=>array('!bindid <BanYou 账号名>[:BanYou 账号密码(仅私聊内可用)]','绑定 BanYou ID'),
-	'sleep'=>array('!sleep [时间: 默认 = 720 分钟(12 小时), 最大 <= 1440 分钟]','让我好好睡个觉，谁也别吵我'),
+	'roll'=>array('!roll [最大随机数]','得到从 1 到指定数字的随机数 (默认的数字是 100)'),
+	'bindid'=>array('!bindid <BanYou 账号>[:BanYou 密码 (仅私聊内可用)]','绑定 BanYou ID'),
+	'sleep'=>array('!sleep [时间: 默认 = 720 分钟 (12 小时), 最大 <= 1440 分钟]','让我好好睡个觉，谁也别吵我'),
 	'br'=>array('!br [Mode:0 (STD), 1 (Taiko), 2 (Catch The Beat), 3 (osu!mania)]','查看我在 BanYou 的最近游玩'),
 	'bp'=>array('!bp <BanYou 账号名> [Mode:0 (STD), 1 (Taiko), 2 (Catch The Beat), 3 (osu!mania)]','列出指定玩家的最佳成绩'),
 	'stats'=>array('!stats <BanYou 账号名> [Mode:0 (STD), 1 (Taiko), 2 (Catch The Beat), 3 (osu!mania)]','得到指定玩家的游玩数据')
