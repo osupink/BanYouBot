@@ -21,6 +21,9 @@ function getbeatmapinfo($urlquery,$sqlquery,$force=0,$cache=1,$needarray=0,$skip
 		$res=$conn->query("SELECT beatmap_id, beatmapset_id, approved, total_length, hit_length, approved_date, last_update, diff_size, diff_overall, diff_approach, diff_drain, artist, title, creator, source, tags, mode, genre_id, language_id, max_combo, version, difficultyrating, file_md5 FROM osu_beatmaps WHERE $sqlquery LIMIT 1");
 		if ($res->num_rows > 0) {
 			list($beatmapId,$beatmapSetId,$approvedStatus,$totalTime,$hitLength,$approvedDate,$lastUpdate,$diffSize,$diffOverall,$diffApproach,$diffDrain,$artist,$title,$creator,$source,$tags,$mode,$genreId,$languageId,$bmmaxcombo,$bmversion,$bmstar,$fileChecksum) = $res->fetch_row();
+			if ($needarray) {
+				$beatmaps[]=array('beatmap_id'=>$beatmapId,'beatmapset_id'=>$beatmapSetId,'approved'=>$approvedStatus,'total_length'=>$totalTime,'hit_length'=>$hitLength,'approved_date'=>$approvedDate,'last_update'=>$lastUpdate,'diff_size'=>$diffSize,'diff_overall'=>$diffOverall,'diff_approach'=>$diffApproach,'diff_drain'=>$diffDrain,'artist'=>$artist,'title'=>$title,'creator'=>$creator,'source'=>$source,'tags'=>$tags,'mode'=>$mode,'genre_id'=>$genreId,'language_id'=>$languageId,'max_combo'=>$bmmaxcombo,'version'=>$bmversion,'difficultyrating'=>$bmstar,'file_md5'=>$fileChecksum);
+			}
 		}
 	}
 	if (empty($beatmapId) || !$beatmapId || $beatmapId <= 0) {
@@ -118,20 +121,20 @@ function addbmcache($beatmapId, $beatmapSetId, $approvedStatus, $totalTime, $hit
 	$approvedStatus = (int)$approvedStatus;
 	$totalTime = (int)$totalTime;
 	$hitLength = (int)$hitLength;
-	$bmversion = sqlstr($bmversion);
-	$fileChecksum = sqlstr($fileChecksum);
+	$bmversion = $conn->escape_string($bmversion);
+	$fileChecksum = $conn->escape_string($fileChecksum);
 	$diffSize = (int)$diffSize;
 	$diffOverall = (int)$diffOverall;
 	$diffApproach = (int)$diffApproach;
 	$diffDrain = (int)$diffDrain;
 	$mode = (int)$mode;
-	$approvedDate = sqlstr($approvedDate);
-	$lastUpdate = sqlstr($lastUpdate);
-	$artist = sqlstr($artist);
-	$title = sqlstr($title);
-	$creator = sqlstr($creator);
-	$source = sqlstr($source);
-	$tags = sqlstr($tags);
+	$approvedDate = $conn->escape_string($approvedDate);
+	$lastUpdate = $conn->escape_string($lastUpdate);
+	$artist = $conn->escape_string($artist);
+	$title = $conn->escape_string($title);
+	$creator = $conn->escape_string($creator);
+	$source = $conn->escape_string($source);
+	$tags = $conn->escape_string($tags);
 	$genreId = (int)$genreId;
 	$languageId = (int)$languageId;
 	$bmmaxcombo = (int)$bmmaxcombo;
