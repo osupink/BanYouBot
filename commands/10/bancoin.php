@@ -11,14 +11,11 @@ if (!isset($commandSubType)) {
 	return;
 }
 $tmp='';
-if (isset($commandSubType)) {
-	$splitarr=explode(' ', $commandContent);
-}
 switch (strtolower($commandSubType)) {
 	case 'change':
-		if (isset($splitarr) && count($splitarr) > 1 && $isMaster) {
-			$splitarr[0]=isAT($splitarr[0]);
-			if (AddMoneyEvent('Change',$splitarr[0],$splitarr[1])) {
+		if (isset($commandArr) && count($commandArr) > 1 && $isMaster) {
+			$commandArr[0]=isAT($commandArr[0]);
+			if (AddMoneyEvent('Change',$commandArr[0],$commandArr[1])) {
 				$tmp.=$lang['change_balance_succeed'];
 			} else {
 				$tmp.=$lang['change_balance_failed'];
@@ -26,15 +23,15 @@ switch (strtolower($commandSubType)) {
 		}
 		break;
 	case 'balance':
-		if (isset($splitarr) && count($splitarr) > 0) {
-			$splitarr[0]=isAT($splitarr[0]);
+		if (isset($commandArr) && count($commandArr) > 0) {
+			$commandArr[0]=isAT($commandArr[0]);
 		}
-		if ($isMaster && isset($splitarr) && count($splitarr) > 0 && is_numeric($splitarr[0])) {
-			$username=GetUsernameByQQ($splitarr[0]);
+		if ($isMaster && isset($commandArr) && count($commandArr) > 0 && is_numeric($commandArr[0])) {
+			$username=GetUsernameByQQ($commandArr[0]);
 			if (!$username) {
-				$username="[CQ:at,qq=$splitarr[0]]";
+				$username="[CQ:at,qq=$commandArr[0]]";
 			}
-			$curMoney=GetCurMoney($splitarr[0]);
+			$curMoney=GetCurMoney($commandArr[0]);
 		} else {
 			$curMoney=GetCurMoney($reqQQNumber);
 		}
@@ -63,21 +60,21 @@ switch (strtolower($commandSubType)) {
 		}
 		break;
 	case 'bill':
-		if (isset($splitarr) && count($splitarr) > 0) {
-			$billQQNumber=isAT($splitarr[0]);
-			if ($splitarr[0] == $billQQNumber) {
+		if (isset($commandArr) && count($commandArr) > 0) {
+			$billQQNumber=isAT($commandArr[0]);
+			if ($commandArr[0] == $billQQNumber) {
 				$billQQNumber=0;
-			} elseif (count($splitarr) > 1) {
-				$splitarr[0]=$splitarr[1];
-				unset($splitarr[1]);
+			} elseif (count($commandArr) > 1) {
+				$commandArr[0]=$commandArr[1];
+				unset($commandArr[1]);
 			} else {
-				unset($splitarr[0]);
+				unset($commandArr[0]);
 			}
 		}
 		if (!isset($billQQNumber) || $billQQNumber === 0) {
 			$billQQNumber=$reqQQNumber;
 		}
-		$page=(isset($splitarr) && count($splitarr) > 0 && is_numeric($splitarr[0]) && $splitarr[0] > 0) ? $splitarr[0] : 1;
+		$page=(isset($commandArr) && count($commandArr) > 0 && is_numeric($commandArr[0]) && $commandArr[0] > 0) ? $commandArr[0] : 1;
 		$maxLimit=$page*10;
 		$res=$conn->query("SELECT COUNT(*) FROM osu_pay WHERE qq = {$billQQNumber}");
 		if ($res->num_rows > 0) {
@@ -101,34 +98,34 @@ switch (strtolower($commandSubType)) {
 		$sendMessageBuffer.="{$lang['page_number']}{$lang['colon']}{$page}/{$maxPage}.\n";
 		break;
 	case 'transfer':
-		if (isset($splitarr) && count($splitarr) < 2) {
+		if (isset($commandArr) && count($commandArr) < 2) {
 			$sendMessageBuffer.="{$lang['usage']}{$lang['colon']}{$commandhelp['bancoin']['transfer'][0]}.\n";
 			break;
 		}
-		$splitarr[0]=isAT($splitarr[0]);
-		if (is_numeric($splitarr[0]) && (is_numeric($splitarr[1]) || is_float($splitarr[1]))) {
-			if ($splitarr[1] <= 0) {
+		$commandArr[0]=isAT($commandArr[0]);
+		if (is_numeric($commandArr[0]) && (is_numeric($commandArr[1]) || is_float($commandArr[1]))) {
+			if ($commandArr[1] <= 0) {
 				$tmp.=$lang['transfer_money_must_>_0'];
-			} elseif ($splitarr[1] > 1000) {
+			} elseif ($commandArr[1] > 1000) {
 				$tmp.=$lang['transfer_money_must_<=_1000'];
-			} elseif (strlen($splitarr[0]) > 10) {
+			} elseif (strlen($commandArr[0]) > 10) {
 				$tmp.=sprintf($lang['+_length_is_not_true'],'QQ');
-			} elseif (GetCurMoney($reqQQNumber) < $splitarr[1]) {
+			} elseif (GetCurMoney($reqQQNumber) < $commandArr[1]) {
 				$tmp.=$lang['not_enough_money'];
-			} elseif (GetCurMoney($splitarr[0]) == 0) {
+			} elseif (GetCurMoney($commandArr[0]) == 0) {
 				$tmp.=$lang['get_money_before_receive_money'];
-			} elseif ($reqQQNumber == $splitarr[0]) {
+			} elseif ($reqQQNumber == $commandArr[0]) {
 				$tmp.=$lang['can_not_transfer_to_myself'];
 			} else {
-				if (AddMoneyEvent('Transfer-',$reqQQNumber,"-{$splitarr[1]}")) {
-					if (AddMoneyEvent('Transfer+',$splitarr[0],$splitarr[1])) {
+				if (AddMoneyEvent('Transfer-',$reqQQNumber,"-{$commandArr[1]}")) {
+					if (AddMoneyEvent('Transfer+',$commandArr[0],$commandArr[1])) {
 						$tmp.=$lang['transfer_succeed'];
-						$received_username=GetUsernameByQQ($splitarr[0]);
+						$received_username=GetUsernameByQQ($commandArr[0]);
 						if (!$received_username) {
-							$received_username="QQ:{$splitarr[0]}";
+							$received_username="QQ:{$commandArr[0]}";
 						}
-						$splitarr[1]=sprintf('%.2f',$splitarr[1]);
-						Announce("[BanCoin] {$received_username} 通过转账被赠送了 {$splitarr[1]}.");
+						$commandArr[1]=sprintf('%.2f',$commandArr[1]);
+						Announce("[BanCoin] {$received_username} 通过转账被赠送了 {$commandArr[1]}.");
 					} else {
 						$tmp.=$lang['add_money_failed'];
 					}
