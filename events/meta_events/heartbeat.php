@@ -49,7 +49,6 @@ function CheckEvent() {
 			$text=str_replace('{score_id}',$scoreID,$text);
 			$text=str_replace('{username}',$username,$text);
 			$QQNumber=0;
-			//$QQNumber=GetQQByUsername($username);
 			$text=str_replace('{display_username}',($QQNumber !== 0 ? "[CQ:at,qq={$QQNumber}]" : $username),$text);
 			$text=str_replace('{ue_username}',rawurlencode($username),$text);
 			$text=str_replace('{rank}',$rank,$text);
@@ -68,7 +67,11 @@ function CheckEvent() {
 				if (in_array($groupNumber, disableNotificationGroupNumberList)) {
 					continue;
 				}
-				sendGroupMessage($groupNumber, $text);
+				while (1) {
+					if (sendGroupMessage($groupNumber, $text)) {
+						break;
+					}
+				}
 			}
 			$latestEventID=$eventID;
 		}
