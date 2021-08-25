@@ -9,7 +9,7 @@ define('DbPassword', '');
 define('DbName', '');
 define('DEBUG', false);
 define('RootPath', __DIR__);
-define('BanYouDomain', 'osu.pink');
+define('BanYouDomain', 'b.osu.pink');
 define('MaxFriendsCount', 32);
 define('APIURL', '');
 define('selfQQ', 2487084757);
