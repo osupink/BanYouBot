@@ -1,16 +1,16 @@
 <?php
 if (!defined('BotFramework')) {
-	die();
+	return;
 }
-function sendmsg($text) {
+function sendmsg(string $text) {
 	file_get_contents("http://127.0.0.1:5700/send_group_msg?group_id=609602961&message={$text}");
 }
-function addnotice($title,$text) {
+function addnotice(string $title, string $text) {
 	//$title=str_replace(array('_','*','&','['),array('\\_','\\*','\\&','\\['),$title);
 	//$text=str_replace(array('_','*','&','['),array('\\_','\\*','\\&','\\['),$text);
 	sendmsg(rawurlencode("*$title*\n$text"));
 }
-function botErrorHandler($errno,$errstr,$errfile,$errline,$errcontext) {
+function botErrorHandler(int $errno, string $errstr, string $errfile, int $errline, array $errcontext) {
 	switch ($errno)
 	{
 		case E_ERROR:               $type = "Error";                  break;

@@ -1,3 +1,6 @@
 <?php
-$sendMessageBuffer.="Status: ".ChangeSayStatus()."\n";
+if (!defined('BotFramework')) {
+	return;
+}
+$sendMessageBuffer .= "Status: " . ChangeSayStatus() . "\n";
 ?>

@@ -1,13 +1,16 @@
 <?php
 global $reqJSONArr;
-$maxNumber=100;
-if (isset($commandFullContent) && is_numeric($commandFullContent)) {
-	$maxNumber=$commandFullContent;
+if (!defined('BotFramework')) {
+	return;
 }
-$randomNumber=GetRandomNumber($maxNumber);
-$username=GetUsernameByQQ($reqQQNumber);
-if (!$username) {
+$maxNumber = 100;
+if (isset($commandFullContent) && is_numeric($commandFullContent)) {
+	$maxNumber = $commandFullContent;
+}
+$randomNumber = GetRandomNumber($maxNumber);
+$username = GetUsernameByQQ($reqQQNumber);
+if (empty($username)) {
 	$username=($messageType === 1) ? "[CQ:at,qq={$reqQQNumber}]" : (isset($reqJSONArr->sender->nickname) ? $reqJSONArr->sender->nickname : $reqQQNumber);
 }
-$sendMessageBuffer.="{$username} rolls {$randomNumber} point(s).\n";
+$sendMessageBuffer .= "{$username} rolls {$randomNumber} point(s).\n";
 ?>

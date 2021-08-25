@@ -1,6 +1,6 @@
 <?php
-if (!isset($commandFullContent)) {
+if (!defined('BotFramework') || !isset($commandFullContent)) {
 	return;
 }
-$sendMessageBuffer.=$commandFullContent."\n";
+$sendMessageBuffer .= $commandFullContent . "\n";
 ?>

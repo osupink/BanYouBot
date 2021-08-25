@@ -1,7 +1,7 @@
 <?php
 if (!defined('BotFramework')) {
-	die();
+	return;
 }
 global $conn;
-$conn=new mysqli(DbAddress, DbUsername, DbPassword, DbName);
+$conn = new mysqli(DbAddress, DbUsername, DbPassword, DbName);
 ?>

@@ -1,3 +1,6 @@
 <?php
-$sendMessageBuffer.='[CQ:at,qq=all] ';
+if (!defined('BotFramework')) {
+	return;
+}
+$sendMessageBuffer .= '[CQ:at,qq=all] ';
 ?>

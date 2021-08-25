@@ -1,63 +1,71 @@
 <?php
-global $conn, $isMaster, $isFakeAdmin, $reqQQNumber, $reqGroupNumber, $reqRawMessage;
-function isBanSay() {
-	return file_exists('bansay');
+global $conn, $isMaster, $isFakeAdmin, $reqQQNumber, $reqGroupNumber, $reqRawMessage, $reqMessageID;
+if (!defined('BotFramework')) {
+	return;
 }
-function ChangeSayStatus() {
+function isBanSay(): bool {
+	$status = file_exists('bansay');
+	AddDebugValue(array('isBanSay' => $status));
+	return $status;
+}
+function ChangeSayStatus(): bool {
 	if (isBanSay()) {
 		unlink('bansay');
-		return 0;
+		$status = false;
 	} else {
 		file_put_contents('bansay','1');
-		return 1;
+		$status = true;
 	}
+	AddDebugValue(array('ChangeSayStatus' => $status));
+	return $status;
 }
-function isAllowGroupMessage($groupNumber=false) {
-	if ($groupNumber === false) {
-		return 1;
-	}
-	return in_array($groupNumber, groupNumberList);
+function isAllowGroupMessage(bool $groupNumber = false): bool {
+	$status = ($groupNumber !== false) ? in_array($groupNumber, groupNumberList) : true;
+	AddDebugValue(array('isAllowGroupMessage' => $status));
+	return $status;
 }
-function CheckCommandBlacklist($command, $admin=1) {
+function CheckCommandBlacklist(string $command, bool $admin = true): int {
 	// 0:不在黑名单, 1:指令黑名单, 2:QQ/群组黑名单.
 	global $conn, $isMaster, $isFakeAdmin, $reqGroupNumber, $reqQQNumber;
-	if ($isMaster && $admin) {
-		return 0;
-	}
-	if (isBanSay()) {
-		return 2;
-	}
-	switch ($command) {
-		case 'help':
-		case 'roll':
-		#case 'weather':
-		case 'br':
-			break;
-		case 'say':
-		case 'atall':
-		case 'botadmin':
-			if (!$isFakeAdmin) {
-				return 1;
+	$status = 0;
+	if (!($isMaster && $admin)) {
+		if (isBanSay()) {
+			$status = 2;
+		} else {
+			switch ($command) {
+				case 'help':
+				case 'roll':
+				#case 'weather':
+				case 'br':
+					break;
+				case 'say':
+				case 'atall':
+				case 'botadmin':
+					if (!$isFakeAdmin) {
+						$status = 1;
+					}
+					break;
+				case 'getkey':
+				case 'bansay':
+				case 'fs':
+				case 'announce':
+					$status = 1;
+					break;
+				default:
+					if (isset($reqGroupNumber) && !isAllowGroupMessage($reqGroupNumber)) {
+						$status = 2;
+					}
+					break;
 			}
-			break;
-		case 'getkey':
-		case 'bansay':
-		case 'fs':
-		case 'announce':
-			return 1;
-			break;
-		default:
-			if (isset($reqGroupNumber) && !isAllowGroupMessage($reqGroupNumber)) {
-				return 2;
-			}
-			break;
+		}
 	}
-	return 0;
+	AddDebugValue(array('CheckCommandBlacklist' => $status));
+	return $status;
 }
-function CheckSilenceList($fullmessage) {
+function CheckSilenceList(string $fullMessage): int {
 	// 0:不在禁言名单, 1:在禁言名单中, 2:在黑名单中
-	global $conn, $isMaster, $isFakeAdmin, $reqGroupNumber, $reqQQNumber;
-	switch ($fullmessage) {
+	global $conn, $isMaster, $isFakeAdmin, $reqGroupNumber, $reqQQNumber, $reqMessageID;
+	switch ($fullMessage) {
 		/*
 		case '[image=A2DA722F8EAD905AC7883C6E4CDB85D3.jpg]':
 			if ($_POST['QQ'] == "2839098896") {
@@ -67,7 +75,7 @@ function CheckSilenceList($fullmessage) {
 		*/
 		default:
 			if (!$isMaster) {
-				$stmt=$conn->prepare('SELECT BlockTime FROM bot_blockqqlist WHERE group_number = ? AND BlockQQ = ? LIMIT 1');
+				$stmt = $conn->prepare('SELECT BlockTime FROM bot_blockqqlist WHERE group_number = ? AND BlockQQ = ? LIMIT 1');
 				if ($stmt->bind_param('ii', $reqGroupNumber, $reqQQNumber) && $stmt->execute() && $stmt->bind_result($blockTime)) {
 					if (!($stmt->fetch() && $blockTime !== false)) {
 						$stmt->close();
@@ -75,62 +83,73 @@ function CheckSilenceList($fullmessage) {
 						$stmt->close();
 						if ($blockTime == 0) {
 							Kick($reqGroupNumber,$reqQQNumber);
-							return 2;
+							$status = 2;
 						}
-						if ($blockTime) {
+						if ($blockTime > 0) {
 							Silence($reqGroupNumber, $reqQQNumber, $blockTime*60);
-							return 1;
+							$status = 1;
 						}
+						DeleteMessage($reqMessageID);
+						break;
 					}
 				} else {
-					$dbError='Unknown.';
+					$dbError = 'Unknown.';
 					if ($stmt) {
-						$dbError=$stmt->error;
+						$dbError = $stmt->error;
 						$stmt->close();
 					}
 					trigger_error("Database Error: {$dbError}", E_USER_WARNING);
-					return;
+					$status = 0;
+					break;
 				}
 				if ($isFakeAdmin) {
 					break;
 				}
-				$lowerfullmessage=utf8_encode(strtolower($fullmessage));
-				$stmt=$conn->prepare('SELECT 1 FROM bot_blocktextlist WHERE group_number = ? AND LOCATE(BlockText,?) > 0 LIMIT 1');
-				if ($stmt->bind_param('is', $reqGroupNumber, $lowerfullmessage) && $stmt->execute() && $stmt->bind_result($status)) {
-					if ($stmt->fetch() && $status) {
+				$lowerfullmessage = utf8_encode(strtolower($fullMessage));
+				$stmt = $conn->prepare('SELECT 1 FROM bot_blocktextlist WHERE group_number = ? AND LOCATE(BlockText,?) > 0 LIMIT 1');
+				if ($stmt->bind_param('is', $reqGroupNumber, $lowerfullmessage) && $stmt->execute() && $stmt->bind_result($rstatus)) {
+					if ($stmt->fetch() && $rstatus) {
 						$stmt->close();
 						Silence($reqGroupNumber, $reqQQNumber, 10*60);
-						return 1;
+						DeleteMessage($reqMessageID);
+						$status = 1;
+						break;
 					} else {
 						$stmt->close();
 					}
 				} else {
-					$dbError='Unknown.';
+					$dbError = 'Unknown.';
 					if ($stmt) {
-						$dbError=$stmt->error;
+						$dbError = $stmt->error;
 						$stmt->close();
 					}
 					trigger_error("Database Error: {$dbError}", E_USER_WARNING);
-					return;
+					$status = 0;
+					break;
 				}
 			}
 			break;
 	}
-	return 0;
-}
-function isBanQQ($QQNumber) {
-	if ($QQNumber === 80000000 || $QQNumber === selfQQ) {
-		return 1;
+	if (!isset($status)) {
+		$status = 0;
 	}
-	return 0;
+	AddDebugValue(array('CheckSilenceList' => $status));
+	return $status;
+}
+function isBanQQ($QQNumber): bool {
+	$status = false;
+	if ($QQNumber === 80000000 || $QQNumber === selfQQ) {
+		$status = true;
+	}
+	AddDebugValue(array('isBanQQ' => $status));
+	return $status;
 }
 // 防止自激
 if (isset($reqQQNumber)) {
 	if (isBanQQ($reqQQNumber) || (isset($reqGroupNumber) && !isAllowGroupMessage($reqGroupNumber))) {
-		die();
+		return;
 	}
-	if (isset($reqJSONArr->message)) {
-		$reqRawMessage=decodeCQCode($reqJSONArr->message);
+	if (isset($reqRawMessage)) {
 		CheckSilenceList($reqRawMessage);
 	}
 }

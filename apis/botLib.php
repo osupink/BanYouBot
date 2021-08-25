@@ -1,57 +1,81 @@
 <?php
-function sendGroupMessage($groupNumber, $message) {
+function sendGroupMessage(int $groupNumber, string $message): bool {
 	$message = rawurlencode($message);
-	$status=@file_get_contents(APIURL . "/send_group_msg_async?group_id={$groupNumber}&message={$message}");
-	return ($status !== false) ? 1 : 0;
+	$status = @file_get_contents(APIURL . "/send_group_msg_async?group_id={$groupNumber}&message={$message}");
+	return ($status !== false) ? true : false;
 }
-function sendMessage($qqNumber, $message) {
+function sendMessage(int $qqNumber, string $message): bool {
 	$message = rawurlencode($message);
-	$status=@file_get_contents(APIURL . "/send_private_msg_async?user_id={$qqNumber}&message={$message}");
-	return ($status !== false) ? 1 : 0;
+	$status = @file_get_contents(APIURL . "/send_private_msg_async?user_id={$qqNumber}&message={$message}");
+	return ($status !== false) ? true : false;
 }
-function sendTempMessage($groupNumber, $qqNumber, $message) {
+function sendTempMessage(int $groupNumber, int $qqNumber, string $message): bool {
 }
-function decodeCQCode($str) {
+function DeleteMessage(int $msg_id): bool {
+	$status = @file_get_contents(APIURL . "/delete_msg_async?message_id={$msg_id}");
+	return ($status !== false) ? true : false;
+}
+function decodeCQCode(string $str): string {
 	return str_replace(['&amp;', '&#91;', '&#93;', '&#44;'], ['&', '[', ']', ','], $str);
 }
-function Silence($groupNumber, $QQNumber, $silenceTime) {
+function Silence(int $groupNumber, int $qqNumber, int $silenceTime): bool {
 	// 单位为秒
-	$status=@file_get_contents(APIURL . "/set_group_ban_async?group_id={$groupNumber}&user_id={$QQNumber}&duration={$silenceTime}");
-	return ($status !== false) ? 1 : 0;
+	$status = ($qqNumber === 0) ? @file_get_contents(APIURL . "/set_group_whole_ban?group_id={$groupNumber}&enable=" . (($silenceTime === 1) ? 'true' : 'false')) : @file_get_contents(APIURL . "/set_group_ban_async?group_id={$groupNumber}&user_id={$qqNumber}&duration={$silenceTime}");
+	return ($status !== false) ? true : false;
 }
-function Kick($groupNumber, $QQNumber) {
-	$status=@file_get_contents(APIURL . "/set_group_kick_async?group_id={$groupNumber}&user_id={$QQNumber}");
-	return ($status !== false) ? 1 : 0;
+function Kick(int $groupNumber, int $qqNumber): bool {
+	$status = @file_get_contents(APIURL . "/set_group_kick_async?group_id={$groupNumber}&user_id={$qqNumber}");
+	return ($status !== false) ? true : false;
 }
-function Announce($str) {
-	$str=trim($str);
+function Announce(string $str, int $qqNumber = 0) {
+	$str = trim($str);
 	foreach (groupNumberList as $value) {
+		if ($qqNumber !== 0 && !isInGroup($value, $qqNumber)) {
+			return;
+		}
 		if (!in_array($value, disableNotificationGroupNumberList)) {
 			sendGroupMessage($value, $str);
 		}
 	}
 }
-function Debug($str) {
-	$str=trim($str);
+function Debug(string $str) {
+	$str = trim($str);
 	sendGroupMessage(devGroupNumber, $str);
 }
-function ChangeCard($groupNumber, $qqNumber, $card) {
+function ChangeCard(int $groupNumber, int $qqNumber, string $card): bool {
 	$card = rawurlencode($card);
-	$status=@file_get_contents(APIURL . "/set_group_card_async?group_id={$groupNumber}&user_id={$qqNumber}&card={$card}");
-	return ($status !== false) ? 1 : 0;
+	$status = @file_get_contents(APIURL . "/set_group_card_async?group_id={$groupNumber}&user_id={$qqNumber}&card={$card}");
+	return ($status !== false) ? true : false;
 }
-function isAT($str) {
+function isAT(string $str): int {
 	if (preg_match('/^\[CQ:at,qq=(\d*)\]$/', $str, $matches)) {
-		return (int) $matches[1];
+		return (int)$matches[1];
 	}
-	return $str;
+	return 0;
 }
-function GetRandomNumber($maxNumber) {
+function GetRandomNumber(int $maxNumber): int {
 	$maxRandomNumber = mt_getrandmax();
 	if ($maxNumber > $maxRandomNumber) {
 		$maxNumber = $maxRandomNumber;
+	} elseif ($maxNumber < 1) {
+		return 1;
 	}
 	$randomNumber = mt_rand(1, $maxNumber);
 	return $randomNumber;
+}
+function isInGroup(int $groupNumber, int $qqNumber): bool {
+	$status = @file_get_contents(APIURL . "/get_group_member_info?group_id={$groupNumber}&user_id={$qqNumber}");
+	if ($status !== false) {
+		$json = json_decode($status);
+		if (json_last_error() === JSON_ERROR_NONE && strtolower($json->status) === 'ok') {
+			return true;
+		}
+	}
+	return false;
+}
+function SetGroupSpecialTitle(int $groupNumber, int $qqNumber, string $specialTitle): bool {
+	$specialTitle = rawurlencode($specialTitle);
+	$status = @file_get_contents(APIURL . "/set_group_special_title_async?group_id={$groupNumber}&user_id={$qqNumber}&special_title={$specialTitle}");
+	return ($status !== false) ? true : false;
 }
 ?>

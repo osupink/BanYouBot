@@ -1,27 +1,30 @@
 <?php
 global $lang, $commandhelp;
+if (!defined('BotFramework')) {
+	return;
+}
 if (!isset($commandFullContent)) {
-	$sendMessageBuffer.="{$lang['usage']}{$lang['colon']}{$commandhelp['bindid'][0]}.\n";
+	$sendMessageBuffer .= "{$lang['usage']}{$lang['colon']}{$commandhelp['bindid'][0]}.\n";
 	return;
 }
-$userArr=explode(':', $commandFullContent, 2);
+$userArr = explode(':', $commandFullContent, 2);
 if (GetQQByUsername((count($userArr) < 2 ? $commandFullContent : $userArr[0])) !== 0) {
-	$sendMessageBuffer.="{$lang['username_has_been_bound']}\n";
+	$sendMessageBuffer .= "{$lang['username_has_been_bound']}\n";
 	return;
 }
-if (GetUsernameByQQ($reqQQNumber) !== 0) {
-	$sendMessageBuffer.="{$lang['qq_has_been_bound']}\n";
+if (!empty(GetUsernameByQQ($reqQQNumber))) {
+	$sendMessageBuffer .= "{$lang['qq_has_been_bound']}\n";
 	return;
 }
-$othersql='';
+$othersql = '';
 if ((isset($isGroup) && $isGroup === 0) && count($userArr) > 1) {
-	$username=$userArr[0];
-	$password=md5($userArr[1]);
-	$othersql='AND user_password = ?';
+	$username = $userArr[0];
+	$password = md5($userArr[1]);
+	$othersql = 'AND user_password = ?';
 } else {
-	$username=$commandFullContent;
+	$username = $commandFullContent;
 }
-$stmt=$conn->prepare("SELECT user_id FROM osu_users WHERE username = ? {$othersql} LIMIT 1");
+$stmt = $conn->prepare("SELECT user_id FROM osu_users WHERE username = ? {$othersql} LIMIT 1");
 if (!empty($othersql)) {
 	if (!$stmt->bind_param('ss', $username, $password)) {
 		$stmt->close();
@@ -38,20 +41,20 @@ if ($stmt->execute() && $stmt->bind_result($userID)) {
 	$stmt->close();
 }
 if (empty($userID)) {
-	$sendMessageBuffer.=rtrim($lang['user_not_found'],'.');
+	$sendMessageBuffer .= rtrim($lang['user_not_found'],'.');
 	if (isset($password)) {
-		$sendMessageBuffer.=$lang['user_not_found_or_password+'];
+		$sendMessageBuffer .= $lang['user_not_found_or_password+'];
 	}
-	$sendMessageBuffer.=".";
+	$sendMessageBuffer .= ".";
 } elseif (isset($password)) {
 	$conn->query("UPDATE osu_users SET user_qq = {$reqQQNumber} WHERE user_id = {$userID} LIMIT 1");
 	$conn->query("DELETE FROM osu_tmpqq WHERE user_id = {$userID} OR tmp_qq = {$reqQQNumber} LIMIT 1");
-	$sendMessageBuffer.=$lang['binding_success'];
+	$sendMessageBuffer .= $lang['binding_success'];
 } else {
-	$conn->query("INSERT INTO osu_tmpqq VALUES ({$userID},{$reqQQNumber}) ON DUPLICATE KEY UPDATE tmp_qq=VALUES(tmp_qq)");
-	$sendMessageBuffer.=$lang['binding_success'].sprintf($lang['binding_success+'],$reqQQNumber);
-	$bindqqpath=RootPath.DIRECTORY_SEPARATOR."bindqq.png";
-	$sendMessageBuffer.="\n[CQ:image,file=file:///{$bindqqpath}]";
+	$conn->query("INSERT INTO osu_tmpqq VALUES ({$userID},{$reqQQNumber}) ON DUPLICATE KEY UPDATE tmp_qq = VALUES(tmp_qq)");
+	$sendMessageBuffer .= $lang['binding_success'] . sprintf($lang['binding_success+'],$reqQQNumber);
+	$bindqqpath = RootPath . DIRECTORY_SEPARATOR . "bindqq.png";
+	$sendMessageBuffer .= "\n[CQ:image,file = file:///{$bindqqpath}]";
 }
-$sendMessageBuffer.="\n";
+$sendMessageBuffer .= "\n";
 ?>

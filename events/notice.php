@@ -1,8 +1,5 @@
 <?php
-if (!defined('BotFramework')) {
-	die();
-}
-if (!isset($reqJSONArr->notice_type)) {
+if (!defined('BotFramework') || !isset($reqJSONArr->notice_type)) {
 	return;
 }
 global $lang;
