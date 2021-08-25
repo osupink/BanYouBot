@@ -30,12 +30,10 @@ function Kick(int $groupNumber, int $qqNumber): bool {
 function Announce(string $str, int $qqNumber = 0) {
 	$str = trim($str);
 	foreach (groupNumberList as $value) {
-		if ($qqNumber !== 0 && !isInGroup($value, $qqNumber)) {
+		if ($qqNumber !== 0 && (in_array($value, disableNotificationGroupNumberList) || !isInGroup($value, $qqNumber))) {
 			return;
 		}
-		if (!in_array($value, disableNotificationGroupNumberList)) {
-			sendGroupMessage($value, $str);
-		}
+		sendGroupMessage($value, $str);
 	}
 }
 function Debug(string $str) {
