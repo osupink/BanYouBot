@@ -17,7 +17,7 @@ if (!empty(GetUsernameByQQ($reqQQNumber))) {
 	return;
 }
 $othersql = '';
-if ((isset($isGroup) && $isGroup === 0) && count($userArr) > 1) {
+if (isset($messageType) && $messageType === 0 && count($userArr) > 1) {
 	$username = $userArr[0];
 	$password = md5($userArr[1]);
 	$othersql = 'AND user_password = ?';
@@ -54,7 +54,7 @@ if (empty($userID)) {
 	$conn->query("INSERT INTO osu_tmpqq VALUES ({$userID},{$reqQQNumber}) ON DUPLICATE KEY UPDATE tmp_qq = VALUES(tmp_qq)");
 	$sendMessageBuffer .= $lang['binding_success'] . sprintf($lang['binding_success+'],$reqQQNumber);
 	$bindqqpath = RootPath . DIRECTORY_SEPARATOR . "bindqq.png";
-	$sendMessageBuffer .= "\n[CQ:image,file = file:///{$bindqqpath}]";
+	$sendMessageBuffer .= "\n[CQ:image,file=file:///{$bindqqpath}]";
 }
 $sendMessageBuffer .= "\n";
 ?>

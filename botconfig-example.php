@@ -1,4 +1,5 @@
 <?php
+ini_set('user_agent', 'BanYouBot');
 define('BotKey', '');
 define('ClientAccKey', '');
 define('WeatherAPIKey', '');

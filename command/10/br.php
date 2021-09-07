@@ -3,19 +3,24 @@ global $lang, $modeName, $scoreTable, $highScoreTable, $artist, $title, $bmversi
 if (!defined('BotFramework')) {
 	return;
 }
-$mode = (isset($commandFullContent) && is_numeric($commandFullContent) && $commandFullContent <= 3 && $commandFullContent >= 0) ? (int)$commandFullContent : 0;
+if (!isset($overall)) {
+	$overall = false;
+}
 $username = isBindID($reqQQNumber,$sendMessageBuffer);
 if (empty($username)) {
 	return;
 }
-$userid = GetUserIDByUsername($username);
+if (!$overall) {
+	$userid = GetUserIDByUsername($username);
+}
+$mode = (isset($commandFullContent) && is_numeric($commandFullContent) && $commandFullContent <= 3 && $commandFullContent >= 0) ? (int)$commandFullContent : 0;
 setGameMode($mode);
-$res = $conn->query("SELECT score_id, beatmap_id, rank, enabled_mods, pp, date FROM {$highScoreTable} WHERE user_id = {$userid} ORDER BY date DESC LIMIT 1");
+$res = $conn->query("SELECT u.username, hs.score_id, hs.beatmap_id, hs.rank, hs.enabled_mods, hs.pp, hs.date FROM {$highScoreTable} hs JOIN osu_users u USING (user_id)" . ((!$overall) ? " WHERE hs.user_id = {$userid}" : "") . " ORDER BY hs.date DESC LIMIT 1");
 if (!($res && $res->num_rows > 0)) {
 	$sendMessageBuffer .= "{$lang['no_play_records']}\n";
 	return;
 }
-list($scoreID,$beatmapID,$rank,$mods,$finalpp,$date) = $res->fetch_row();
+list($username,$scoreID,$beatmapID,$rank,$mods,$finalpp,$date) = $res->fetch_row();
 $res = $conn->query("SELECT pp FROM {$scoreTable} WHERE score_id = {$scoreID} LIMIT 1");
 list($pp) = $res->fetch_row();
 $pp = sprintf('%.2f',$pp);
@@ -37,6 +42,6 @@ if (!empty($hitLength)) {
 	$sendMessageBuffer .= "{$lang['comma']}{$lang['beatmap_hit_length']}{$lang['colon']}{$hitLength} {$lang['second']}{$lang['comma']}{$lang['beatmap_total_length']}{$lang['colon']}{$totalTime} {$lang['second']}";
 }
 $sendMessageBuffer .= "\n";
-$sendMessageBuffer .= "{$lang['userpage']}{$lang['colon']}https://user.".BanYouDomain."/".rawurlencode($username);
-$sendMessageBuffer .= "\n";
+$sendMessageBuffer .= "{$lang['userpage']}{$lang['colon']}https://user.".BanYouDomain."/".rawurlencode($username). "\n";
+$sendMessageBuffer .= "Replay{$lang['colon']}http://replay.".BanYouDomain."/{$scoreID}\n";
 ?>

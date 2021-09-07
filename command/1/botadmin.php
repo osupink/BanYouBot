@@ -1,5 +1,5 @@
 <?php
-global $lang, $isMaster, $commandhelp, $reqMessageID, $reqReplyMessageID;
+global $lang, $commandhelp;
 if (!defined('BotFramework')) {
 	return;
 }
@@ -15,8 +15,8 @@ switch (strtolower($commandSubType)) {
 			$sendMessageBuffer .= "{$lang['usage']}{$lang['colon']}{$commandhelp['botadmin']['blockqq'][0]}.\n";
 			return;
 		}
-		$commandArr[0]=isAT($commandArr[0]);
-		if ($commandArr[0] === 0 || strlen($commandArr[0]) > 11 || strlen($commandArr[0]) < 5) {
+		$commandArr[0] = isATorQQ($commandArr[0]);
+		if (!isVaildQQ($commandArr[0])) {
 			$sendMessageBuffer .= "{$lang['not_a_true_qqnumber']}\n";
 			return;
 		}
@@ -48,7 +48,10 @@ switch (strtolower($commandSubType)) {
 			$sendMessageBuffer .= "{$lang['usage']}{$lang['colon']}{$commandhelp['botadmin']['unblockqq'][0]}.\n";
 			return;
 		}
-		$blockQQNumber=isAT($commandContent);
+		$blockQQNumber=isATorQQ($commandContent);
+		if (!isVaildQQ($blockQQNumber)) {
+			return;
+		}
 		$stmt=$conn->prepare('DELETE FROM bot_blockqqlist WHERE group_number = ? AND BlockQQ = ? LIMIT 1');
 		$stmt->bind_param('is', $reqGroupNumber, $blockQQNumber);
 		$stmt->execute();
@@ -110,7 +113,10 @@ switch (strtolower($commandSubType)) {
 			$sendMessageBuffer .= "{$lang['usage']}{$lang['colon']}{$commandhelp['botadmin']['kick'][0]}.\n";
 			return;
 		}
-		$kickQQNumber=isAT($commandContent);
+		$kickQQNumber=isATorQQ($commandContent);
+		if (!isVaildQQ($kickQQNumber)) {
+			return;
+		}
 		Kick($reqGroupNumber, $kickQQNumber);
 		break;
 	case 'silence':
@@ -121,7 +127,10 @@ switch (strtolower($commandSubType)) {
 		$silenceQQNumber=0;
 		$silenceTime=1;
 		if (strtolower($commandArr[0]) !== 'all') {
-			$silenceQQNumber=isAT($commandArr[0]);
+			$silenceQQNumber=isATorQQ($commandArr[0]);
+			if (!isVaildQQ($silenceQQNumber)) {
+				return;
+			}
 			if (isset($commandArr[1]) && is_numeric($commandArr[1])) {
 				$silenceTime=(int)$commandArr[1];
 			}
@@ -138,7 +147,13 @@ switch (strtolower($commandSubType)) {
 			$sendMessageBuffer .= "{$lang['usage']}{$lang['colon']}{$commandhelp['botadmin']['unsilence'][0]}.\n";
 			return;
 		}
-		$unSilenceQQNumber=(strtolower($commandContent) !== 'all') ? isAT($commandContent) : 0;
+		$unSilenceQQNumber=0;
+		if (strtolower($commandContent) !== 'all') {
+			$unSilenceQQNumber = isATorQQ($commandContent);
+			if (!isVaildQQ($unSilenceQQNumber)) {
+				return;
+			}
+		}
 		Silence($reqGroupNumber, $unSilenceQQNumber, 0);
 		break;
 	case 'changecard':
@@ -146,8 +161,8 @@ switch (strtolower($commandSubType)) {
 			$sendMessageBuffer .= "{$lang['usage']}{$lang['colon']}{$commandhelp['botadmin']['changecard'][0]}.\n";
 			return;
 		}
-		$changeQQNumber = (int)((!is_numeric($commandArr[0])) ? isAT($commandArr[0]) : $commandArr[0]);
-		if ($changeQQNumber !== 0) {
+		$changeQQNumber = isATorQQ($commandArr[0]);
+		if (isVaildQQ($changeQQNumber)) {
 			if (!$isMaster && $changeQQNumber === selfQQ) {
 				return;
 			}
@@ -160,8 +175,8 @@ switch (strtolower($commandSubType)) {
 			$sendMessageBuffer .= "{$lang['usage']}{$lang['colon']}{$commandhelp['botadmin']['settitle'][0]}.\n";
 			return;
 		}
-		$changeQQNumber=(int)((!is_numeric($commandArr[0])) ? isAT($commandArr[0]) : $commandArr[0]);
-		if ($changeQQNumber !== 0) {
+		$changeQQNumber = isATorQQ($commandArr[0]);
+		if (isVaildQQ($changeQQNumber)) {
 			if (!$isMaster && $changeQQNumber === selfQQ) {
 				return;
 			}

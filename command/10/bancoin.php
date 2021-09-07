@@ -1,5 +1,5 @@
 <?php
-global $lang, $isMaster, $commandhelp;
+global $lang, $commandhelp;
 if (!defined('BotFramework')) {
 	return;
 }
@@ -17,8 +17,8 @@ $tmp = '';
 switch (strtolower($commandSubType)) {
 	case 'change':
 		if (isset($commandArr) && count($commandArr) > 1 && $isMaster) {
-			$commandArr[0] = isAT($commandArr[0]);
-			if (AddMoneyEvent('Change',$commandArr[0],$commandArr[1])) {
+			$commandArr[0] = isATorQQ($commandArr[0]);
+			if (isVaildQQ($commandArr[0]) && AddMoneyEvent('Change',$commandArr[0],$commandArr[1])) {
 				$tmp .= $lang['change_balance_succeed'];
 			} else {
 				$tmp .= $lang['change_balance_failed'];
@@ -27,14 +27,19 @@ switch (strtolower($commandSubType)) {
 		break;
 	case 'balance':
 		if (isset($commandArr) && count($commandArr) > 0) {
-			$commandArr[0] = isAT($commandArr[0]);
+			$commandArr[0] = isATorQQ($commandArr[0]);
 		}
-		if ($isMaster && isset($commandArr) && count($commandArr) > 0 && is_numeric($commandArr[0])) {
-			$username = GetUsernameByQQ($commandArr[0]);
-			if (empty($username)) {
-				$username = "[CQ:at,qq=$commandArr[0]]";
+		if ($isMaster && isset($commandArr) && count($commandArr) > 0) {
+			if (isVaildQQ($commandArr[0])) {
+				$username = GetUsernameByQQ($commandArr[0]);
+				if (empty($username)) {
+					$username = "[CQ:at,qq=$commandArr[0]]";
+				}
+				$curMoney = GetCurMoney($commandArr[0]);
+			} else {
+				$tmp .= "Error";
+				break;
 			}
-			$curMoney = GetCurMoney($commandArr[0]);
 		} else {
 			$curMoney = GetCurMoney($reqQQNumber);
 		}
@@ -63,7 +68,7 @@ switch (strtolower($commandSubType)) {
 		break;
 	case 'bill':
 		if (isset($commandArr) && count($commandArr) > 0) {
-			$billQQNumber = isAT($commandArr[0]);
+			$billQQNumber = isATorQQ($commandArr[0]);
 			if ($commandArr[0] == $billQQNumber) {
 				$billQQNumber = 0;
 			} elseif (count($commandArr) > 1) {
@@ -73,7 +78,7 @@ switch (strtolower($commandSubType)) {
 				unset($commandArr[0]);
 			}
 		}
-		if (!isset($billQQNumber) || $billQQNumber === 0) {
+		if (!isset($billQQNumber) || !isVaildQQ($billQQNumber)) {
 			$billQQNumber = $reqQQNumber;
 		}
 		$page = (isset($commandArr) && count($commandArr) > 0 && is_numeric($commandArr[0]) && $commandArr[0] > 0) ? $commandArr[0] : 1;
@@ -104,14 +109,12 @@ switch (strtolower($commandSubType)) {
 			$sendMessageBuffer .= "{$lang['usage']}{$lang['colon']}{$commandhelp['bancoin']['transfer'][0]}.\n";
 			break;
 		}
-		$commandArr[0]=isAT($commandArr[0]);
-		if (is_numeric($commandArr[0]) && (is_numeric($commandArr[1]) || is_float($commandArr[1]))) {
+		$commandArr[0]=isATorQQ($commandArr[0]);
+		if (isVaildQQ($commandArr[0]) && (is_numeric($commandArr[1]) || is_float($commandArr[1]))) {
 			if ($commandArr[1] <= 0) {
 				$tmp .= $lang['transfer_money_must_>_0'];
 			} elseif ($commandArr[1] > 1000) {
 				$tmp .= $lang['transfer_money_must_<=_1000'];
-			} elseif (strlen($commandArr[0]) > 10) {
-				$tmp .= sprintf($lang['+_length_is_not_true'],'QQ');
 			} elseif (GetCurMoney($reqQQNumber) < $commandArr[1]) {
 				$tmp .= $lang['not_enough_money'];
 			} elseif (GetCurMoney($commandArr[0]) === 0) {

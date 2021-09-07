@@ -1,5 +1,5 @@
 <?php
-global $lang, $isMaster, $commandhelp;
+global $lang, $commandhelp;
 if (!defined('BotFramework')) {
 	return;
 }
@@ -63,6 +63,9 @@ switch (strtolower($commandSubType)) {
 			$sendMessageBuffer .= sprintf($lang['updated_supporter_expirydate'],$username);
 			if ($supporter && $supporterExpiryTime != null) {
 				$sendMessageBuffer .= sprintf($lang['updated_supporter_expirydate_to+'],trim($supporterExpiryTime,'\''));
+			}
+			if (FlushSupporter($username)) {
+				$sendMessageBuffer .= "{$lang['comma']}{$lang['will_take_effect_immediately']}";
 			}
 			$sendMessageBuffer .= ".";
 		}

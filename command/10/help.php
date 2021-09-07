@@ -1,19 +1,22 @@
 <?php
-global $commandhelp, $isMaster, $isFakeAdmin;
+global $lang, $commandhelp;
 if (!defined('BotFramework')) {
 	return;
 }
-$allowCheckAdmin = 0;
+$allowCheckAdmin = false;
 if (isset($commandFullContent)) {
 	if ($commandFullContent == 1 && ($isMaster || $isFakeAdmin)) {
-		$allowCheckAdmin = 1;
-	} elseif (isset($commandhelp[$commandFullContent]) && (is_file("commands/10/{$commandFullContent}.php") || is_file("commands/{$messageType}/{$commandFullContent}.php"))) {
+		$allowCheckAdmin = true;
+	} elseif (isset($commandhelp[$commandFullContent]) && (is_file("command/10/{$commandFullContent}.php") || is_file("command/{$messageType}/{$commandFullContent}.php"))) {
 		$commandKey = $commandFullContent;
 	}
 }
 #$sendMessageBuffer .= "messageCount: {$messagecount}, allowCheckAdmin: {$allowCheckAdmin}, commandKey: {$commandKey}.";
+if (in_array($reqGroupNumber, byPrefixGroupNumberList)) {
+	$sendMessageBuffer .= $lang['attention:command_requires_prefix_in_this_group'] . "\n";
+}
 foreach ($commandhelp as $key => $value) {
-	if (!CheckCommandBlacklist($key,$allowCheckAdmin) && (is_file("commands/10/{$key}.php") || is_file("commands/{$messageType}/{$key}.php"))) {
+	if (!CheckCommandBlacklist($key, $allowCheckAdmin) && (is_file("command/10/{$key}.php") || is_file("command/{$messageType}/{$key}.php"))) {
 		if (isset($commandKey)) {
 			if ($commandKey != $key) {
 				continue;

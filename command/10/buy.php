@@ -73,9 +73,9 @@ switch (strtolower($commandSubType)) {
 		break;
 	case 'sendgift':
 		if (isset($commandArr)) {
-			$commandArr[0] = isAT($commandArr[0]);
+			$commandArr[0] = isATorQQ($commandArr[0]);
 		}
-		if (!(count($commandArr) > 2 && is_numeric($commandArr[0]) && $commandArr[0] !== 0 && is_numeric($commandArr[2]))) {
+		if (!(count($commandArr) > 2 && isVaild($commandArr[0]) && is_numeric($commandArr[2]))) {
 			$sendMessageBuffer .= "{$lang['usage']}{$lang['colon']}{$commandhelp['buy']['sendgift'][0]}";
 			break;
 		}
@@ -111,8 +111,8 @@ switch (strtolower($commandSubType)) {
 			$buyCount = $commandArr[count($commandArr)-1];
 		}
 		$goodsname = $conn->escape_string($commandSubType);
-		$res = $conn->query("SELECT id, name, stock, money, `sql`, disposable FROM osu_store WHERE name = '{$goodsname}' LIMIT 1");
-		list($goodsid, $goodsname, $goodsstock, $goodsprice, $goodssql, $goodsdisposable)=$res->fetch_row();
+		$res = $conn->query("SELECT id, name, stock, money, `sql`, disposable, kickuser FROM osu_store WHERE name = '{$goodsname}' LIMIT 1");
+		list($goodsid, $goodsname, $goodsstock, $goodsprice, $goodssql, $goodsdisposable, $kickuser)=$res->fetch_row();
 		if (!empty($goodsid)) {
 			if ($goodsstock !== null && $goodsstock == 0) {
 				$sendMessageBuffer .= $lang['not_enough_stock'];
@@ -164,6 +164,9 @@ switch (strtolower($commandSubType)) {
 					$conn->query("UPDATE osu_store SET stock = stock-{$buyCount} WHERE id = {$goodsid} LIMIT 1");
 				}
 				$sendMessageBuffer .= $lang['deduct_money_and_provide_goods_succeed'];
+				if ($kickuser == 1 && FlushSupporter($username)) {
+					$sendMessageBuffer .= "{$lang['comma']}{$lang['will_take_effect_immediately']}";
+				}
 			}
 		} else {
 			$sendMessageBuffer .= $lang['have_not_this_goods_in_store'];

@@ -23,15 +23,17 @@ if (isset($commandArr) && is_numeric($commandArr[count($commandArr)-1])) {
 }
 setGameMode($mode);
 $username = $conn->real_escape_string($username);
-$res = $conn->query("SELECT sh.date, sh.rank, sh.beatmap_id, CONCAT(IF(b.artist != '',CONCAT(b.artist,' - ',b.title),b.title),' [',b.version,']') AS beatmap_name, s.pp, sh.pp as bp_pp, sh.score, sh.enabled_mods as mods FROM osu_users u JOIN $highScoreTable sh USING (user_id) JOIN $scoreTable s USING (score_id) LEFT JOIN osu_beatmaps b ON b.beatmap_id = sh.beatmap_id WHERE u.username = '{$username}' ORDER BY sh.pp DESC, s.pp DESC LIMIT 10");
+$res = $conn->query("SELECT u.username, sh.date, sh.rank, sh.beatmap_id, CONCAT(IF(b.artist != '',CONCAT(b.artist,' - ',b.title),b.title),' [',b.version,']') AS beatmap_name, s.pp, sh.pp as bp_pp, sh.score, sh.enabled_mods as mods FROM osu_users u JOIN $highScoreTable sh USING (user_id) JOIN $scoreTable s USING (score_id) LEFT JOIN osu_beatmaps b ON b.beatmap_id = sh.beatmap_id WHERE u.username = '{$username}' ORDER BY sh.pp DESC, s.pp DESC LIMIT 10");
 $beatmapList = $res->fetch_all(MYSQLI_ASSOC);
 if (count($beatmapList) < 1) {
 	$sendMessageBuffer .= "{$lang['have_not_bp']}\n";
 	return;
 }
-$sendMessageBuffer .= "{$lang['userpage']}{$lang['colon']}https://user.".BanYouDomain."/".rawurlencode($username).(($mode > 0) ? "?m={$mode}" : "")."\n";
 $count = 1;
 foreach ($beatmapList as $value) {
+	if ($count === 1) {
+		$sendMessageBuffer .= "{$value['username']} {$lang['of']}{$lang['userpage']}{$lang['colon']}https://user.".BanYouDomain."/".rawurlencode($value['username']).(($mode > 0) ? "?m={$mode}" : "")."\n";
+	}
 	$mods = getShortModString($value['mods'],1);
 	$beatmapLink = "https://osu.ppy.sh/b/{$value['beatmap_id']}";
 	if ($mode > 0) {

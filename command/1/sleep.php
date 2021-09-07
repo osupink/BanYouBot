@@ -1,5 +1,4 @@
 <?php
-global $isMaster, $isFakeAdmin;
 if (!defined('BotFramework')) {
 	return;
 }
