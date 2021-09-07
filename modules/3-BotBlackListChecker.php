@@ -1,5 +1,5 @@
 <?php
-global $conn, $isMaster, $isFakeAdmin, $reqQQNumber, $reqGroupNumber, $reqRawMessage, $reqMessageID;
+global $conn;
 if (!defined('BotFramework')) {
 	return;
 }
@@ -19,32 +19,43 @@ function ChangeSayStatus(): bool {
 	AddDebugValue(array('ChangeSayStatus' => $status));
 	return $status;
 }
-function isAllowGroupMessage(bool $groupNumber = false): bool {
-	$status = ($groupNumber !== false) ? in_array($groupNumber, groupNumberList) : true;
+function isAllowGroupMessage(int $groupNumber = 0): bool {
+	$status = ($groupNumber !== 0) ? in_array($groupNumber, groupNumberList) : true;
 	AddDebugValue(array('isAllowGroupMessage' => $status));
 	return $status;
 }
 function CheckCommandBlacklist(string $command, bool $admin = true): int {
 	// 0:不在黑名单, 1:指令黑名单, 2:QQ/群组黑名单.
-	global $conn, $isMaster, $isFakeAdmin, $reqGroupNumber, $reqQQNumber;
+	global $conn, $isMaster, $isFakeAdmin, $reqGroupNumber, $reqQQRole, $reqQQNumber;
 	$status = 0;
 	if (!($isMaster && $admin)) {
 		if (isBanSay()) {
 			$status = 2;
 		} else {
-			switch ($command) {
+			switch (strtolower($command)) {
 				case 'help':
 				case 'roll':
 				#case 'weather':
 				case 'br':
 					break;
+				case 'h':
+				case 'he':
+					if ($reqGroupNumber === 193067962) {
+						$status = 1;
+					}
+					break;
 				case 'say':
-				case 'atall':
-				case 'botadmin':
 					if (!$isFakeAdmin) {
 						$status = 1;
 					}
 					break;
+				case 'atall':
+				case 'botadmin':
+					if ($isMaster || (!$isFakeAdmin && $reqQQRole < 1)) {
+						$status = 1;
+					}
+					break;
+				case 'kick':
 				case 'getkey':
 				case 'bansay':
 				case 'fs':
@@ -149,8 +160,8 @@ if (isset($reqQQNumber)) {
 	if (isBanQQ($reqQQNumber) || (isset($reqGroupNumber) && !isAllowGroupMessage($reqGroupNumber))) {
 		return;
 	}
-	if (isset($reqRawMessage)) {
-		CheckSilenceList($reqRawMessage);
+	if (isset($reqRawMessage) && CheckSilenceList($reqRawMessage) > 0) {
+		return;
 	}
 }
 ?>

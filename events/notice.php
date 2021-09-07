@@ -3,7 +3,7 @@ if (!defined('BotFramework') || !isset($reqJSONArr->notice_type)) {
 	return;
 }
 global $lang;
-switch ($reqJSONArr->notice_type) {
+switch (strtolower($reqJSONArr->notice_type)) {
 	case 'group_increase':
 		if (!isset($reqGroupNumber,$reqQQNumber)) {
 			break;

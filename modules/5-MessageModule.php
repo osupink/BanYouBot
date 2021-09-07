@@ -2,7 +2,6 @@
 if (!defined('BotFramework')) {
 	return;
 }
-global $sendMessageBuffer;
 if (DEBUG) {
 	global $reqEventType, $reqGroupNumber, $debugMessageBuffer;
 	if (isset($reqGroupNumber) && $reqGroupNumber === devGroupNumber && $reqEventType !== 'meta_event') {

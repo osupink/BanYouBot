@@ -17,7 +17,7 @@ function GetPlayerRankByUserID(int $mode, int $userid): int {
 	}
 	$stmt->close();
 	if (!empty($playerPPScore)) {
-		$stmt = $conn->prepare("SELECT count(*)+1 FROM {$userStatsTable} us JOIN osu_users u USING (user_id) WHERE us.user_id ! =  ? AND us.{$scoreType} > ? AND NOT EXISTS (SELECT 1 FROM osu_user_banhistory WHERE user_id = us.user_id LIMIT 1)");
+		$stmt = $conn->prepare("SELECT count(*)+1 FROM {$userStatsTable} us JOIN osu_users u USING (user_id) WHERE us.user_id != ? AND us.{$scoreType} > ? AND NOT EXISTS (SELECT 1 FROM osu_user_banhistory WHERE user_id = us.user_id AND ban_status > 1 AND UNIX_TIMESTAMP() < UNIX_TIMESTAMP(timestamp)+period ORDER BY UNIX_TIMESTAMP(timestamp)+period DESC LIMIT 1)");
 		if (!$stmt) {
 			return 0;
 		}
@@ -57,7 +57,7 @@ function GetUserIDByUsername(string $username): int {
 function isBindID(int $qqNumber, string &$text): string {
 	global $lang;
 	$username = GetUsernameByQQ($qqNumber);
-	if (empty($username)) {
+	if (!$username) {
 		$text .= "{$lang['need_bindid']}\n";
 		return '';
 	}
@@ -98,5 +98,21 @@ function GetQQByUsername(string $username): int {
 		}
 	}
 	return 0;
+}
+function KickUser(string $username): bool {
+	if (!empty($username)) {
+		if (strtoupper(trim(file_get_contents(BanYouAPIURL . "?command=kick&data=". rawurlencode($username)))) === "OK") {
+			return true;
+		}
+	}
+	return false;
+}
+function FlushSupporter(string $username): bool {
+	if (!empty($username)) {
+		if (strtoupper(trim(file_get_contents(BanYouAPIURL . "?command=flushsupporter&data=". rawurlencode($username)))) === "OK") {
+			return true;
+		}
+	}
+	return false;
 }
 ?>

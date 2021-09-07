@@ -30,8 +30,8 @@ function Kick(int $groupNumber, int $qqNumber): bool {
 function Announce(string $str, int $qqNumber = 0) {
 	$str = trim($str);
 	foreach (groupNumberList as $value) {
-		if ($qqNumber !== 0 && (in_array($value, disableNotificationGroupNumberList) || !isInGroup($value, $qqNumber))) {
-			return;
+		if ($value === devGroupNumber || ($qqNumber !== 0 && (in_array($value, disableNotificationGroupNumberList) || !isInGroup($value, $qqNumber)))) {
+			continue;
 		}
 		sendGroupMessage($value, $str);
 	}
@@ -50,6 +50,15 @@ function isAT(string $str): int {
 		return (int)$matches[1];
 	}
 	return 0;
+}
+function isATorQQ(string $str): int {
+	return (is_numeric($str)) ? (int)$str : isAT($str);
+}
+function isVaildQQ(int $qqNumber): bool {
+	if ($qqNumber === 0 || strlen($qqNumber) > 11 || strlen($qqNumber) < 5) {
+		return false;
+	}
+	return true;
 }
 function GetRandomNumber(int $maxNumber): int {
 	$maxRandomNumber = mt_getrandmax();

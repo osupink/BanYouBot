@@ -18,7 +18,7 @@ function CheckEvent() {
 			}
 			setGameMode($mode);
 			$stmt = $conn->prepare("SELECT score_id, rank, enabled_mods, pp, score FROM {$highScoreTable} WHERE user_id = ? AND beatmap_id = ? LIMIT 1");
-			if ($stmt->bind_param('ii', $user_id, $beatmap_id) && $stmt->execute() && $stmt->bind_result($scoreID,$rank,$modsnumber,$finalpp,$score) && $stmt->fetch()) {
+			if ($stmt->bind_param('ii', $user_id, $beatmap_id) && $stmt->execute() && $stmt->bind_result($scoreID, $rank, $modsnumber, $finalpp, $score) && $stmt->fetch()) {
 				$stmt->close();
 			} else {
 				$dbError = 'Unknown.';
@@ -33,13 +33,7 @@ function CheckEvent() {
 			if ($stmt->bind_param('i', $scoreID) && $stmt->execute() && $stmt->bind_result($pp) && $stmt->fetch()) {
 				$stmt->close();
 			} else {
-				$dbError = 'Unknown.';
-				if ($stmt) {
-					$dbError = $stmt->error;
-					$stmt->close();
-				}
-				trigger_error("Database Error: {$dbError}", E_USER_WARNING);
-				return;
+				$pp=0;
 			}
 			$rank = str_replace(array('H', 'X'), array('+Hidden', 'SS'), $rank);
 			if ($mode == 2) {
@@ -55,10 +49,10 @@ function CheckEvent() {
 				if (in_array($groupNumber, disableNotificationGroupNumberList)) {
 					continue;
 				}
-				if (!isInGroup($groupNumber, $qqNumber)) {
+				if ($groupNumber !== mainGroupNumber && !isInGroup($groupNumber, $qqNumber)) {
 					continue;
 				}
-				while (1) {
+				for ($i=0; $i<3; $i++) {
 					if (sendGroupMessage($groupNumber, $text)) {
 						break;
 					}

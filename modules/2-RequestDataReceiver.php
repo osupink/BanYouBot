@@ -1,5 +1,5 @@
 <?php
-global $conn, $reqData, $reqJSONArr, $isMaster, $reqQQNumber, $reqGroupNumber, $reqRawMessage, $reqEventType, $reqMessageID, $reqReplyMessageID, $isFakeAdmin;
+global $conn, $reqData, $reqJSONArr, $isMaster, $isFakeAdmin, $reqQQRole, $reqQQNumber, $reqQQNickname, $reqGroupNumber, $reqRawMessage, $reqEventType, $reqMessageID, $reqReplyMessageID;
 if (!defined('BotFramework')) {
 	return;
 }
@@ -17,6 +17,25 @@ AddDebugValue(array('isMaster' => $isMaster));
 if (isset($reqJSONArr->group_id)) {
 	$reqGroupNumber = (int)$reqJSONArr->group_id;
 	AddDebugValue(array('reqGroupNumber' => $reqGroupNumber));
+}
+if (isset($reqJSONArr->sender)) {
+	$reqSender = $reqJSONArr->sender;
+	if (isset($reqSender->nickname)) {
+		$reqQQNickname = $reqSender->nickname;
+	}
+	if (isset($reqSender->role)) {
+		$reqQQRole = 0;
+		switch (strtolower($reqJSONArr->sender->role)) {
+			case 'owner':
+				$reqQQRole = 2;
+				break;
+			case 'admin':
+				$reqQQRole = 1;
+				break;
+			default:
+				break;
+		}
+	}
 }
 if (isset($reqQQNumber, $reqGroupNumber)) {
 	$stmt = $conn->prepare('SELECT 1 FROM bot_groupinfo WHERE group_number = ? AND bot_fakeadmin = ? LIMIT 1');
@@ -49,7 +68,8 @@ if (isset($reqJSONArr->message)) {
 	if (preg_match("/^\[CQ:reply,id=(-?\d+)\]/", $reqRawMessage, $matches)) {
 		$reqReplyMessageID = (int)$matches[1];
 		AddDebugValue(array('reqReplyMessageID' => $reqReplyMessageID));
-		$reqRawMessage = str_replace($matches[0], '', $reqRawMessage);
+		#$reqRawMessage = str_replace($matches[0], '', $reqRawMessage);
+		$reqRawMessage = preg_replace("/^\[CQ:reply,id=(-?\d+)\](\[CQ:at,qq=(\d*)\])?/", '', $reqRawMessage);
 	}
 }
 ?>
