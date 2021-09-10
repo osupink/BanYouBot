@@ -2,7 +2,6 @@
 if (!defined('BotFramework')) {
 	return;
 }
-chdir(__DIR__);
 function CheckEvent() {
 	global $conn, $lang, $scoreTable, $highScoreTable;
 	if (file_exists('lastEventID')) {

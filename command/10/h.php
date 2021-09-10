@@ -2,7 +2,7 @@
 if (!defined('BotFramework')) {
 	return;
 }
-$r18 = (!isset($messageType) || $messageType === 1) ? 0 : 1;
+$r18 = $r18 ?? ((!isset($messageType) || $messageType === 1) ? 0 : 1);
 if (!isset($tagsQuery)) {
 	$tagsQuery = '&tag='. rawurlencode('萝莉');;
 }

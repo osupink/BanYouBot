@@ -55,6 +55,7 @@ function CheckCommandBlacklist(string $command, bool $admin = true): int {
 						$status = 1;
 					}
 					break;
+				case 'hr':
 				case 'kick':
 				case 'getkey':
 				case 'bansay':
