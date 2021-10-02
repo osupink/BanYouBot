@@ -40,16 +40,18 @@ switch (strtolower($reqJSONArr->message_type)) {
 		return;
 }
 if (count($rawMessageSplit) > 0) {
-	$messageSplit = array_filter($rawMessageSplit, 'MatchCommandPrefix');
+	$messageSplit = ($messageType === 1) ? array_filter($rawMessageSplit, 'MatchCommandPrefix') : $rawMessageSplit;
 }
-if (count($messageSplit) < 1 || !isset($messageType)) {
+if (!isset($messageSplit) || count($messageSplit) < 1 || !isset($messageType)) {
 	return;
 }
 if (!isset($sendMessageBuffer)) {
 	$sendMessageBuffer = '';
 }
 foreach ($messageSplit as $message) {
-	$message = substr(TrimMultiSpace(trim($message)), 1);
+	if ($messageType === 1) {
+		$message = substr(TrimMultiSpace(trim($message)), 1);
+	}
 	$commandSplitArg = explode(' ', $message, 3);
 	$commandName = $commandSplitArg[0];
 	if (in_array($reqGroupNumber, byPrefixGroupNumberList)) {
