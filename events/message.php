@@ -49,7 +49,7 @@ if (!isset($sendMessageBuffer)) {
 	$sendMessageBuffer = '';
 }
 foreach ($messageSplit as $message) {
-	if ($messageType === 1) {
+	if ($messageType === 1 || MatchCommandPrefix($message)) {
 		$message = substr(TrimMultiSpace(trim($message)), 1);
 	}
 	$commandSplitArg = explode(' ', $message, 3);
