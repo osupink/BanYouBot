@@ -27,7 +27,7 @@ switch (strtolower($commandSubType)) {
 			}
 			$silenceTime=(int)$commandArr[1];
 		} else {
-			$silenceTime=0;
+			$silenceTime=-1;
 		}
 		$blockQQNumber=(int)$commandArr[0];
 		$conn->query("INSERT INTO bot_blockqqlist VALUES ({$reqGroupNumber},{$blockQQNumber},{$silenceTime}) ON DUPLICATE KEY UPDATE BlockTime = {$silenceTime}");
@@ -190,7 +190,9 @@ switch (strtolower($commandSubType)) {
 			return;
 		}
 		DeleteMessage($reqMessageID);
-		DeleteMessage($reqReplyMessageID);
+		if (DeleteMessage($reqReplyMessageID)) {
+			return;
+		}
 		break;
 	default:
 		return;

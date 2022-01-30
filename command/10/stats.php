@@ -32,13 +32,16 @@ if ($rank === 0) {
 	return;
 }
 setGameMode($mode);
-$res = $conn->query("SELECT u.username, us.ranked_score, us.playcount, us.level, us.accuracy FROM {$userStatsTable} us JOIN osu_users u USING (user_id) WHERE us.user_id = {$userid} LIMIT 1");
-list($username, $score, $playcount, $level, $accuracy)=$res->fetch_row();
+$res = $conn->query("SELECT u.username, us.rank_score, us.ranked_score, us.playcount, us.level, us.accuracy FROM {$userStatsTable} us JOIN osu_users u USING (user_id) WHERE us.user_id = {$userid} LIMIT 1");
+list($username, $pp, $score, $playcount, $level, $accuracy)=$res->fetch_row();
 $score = number_format($score);
 $level = floor($level);
 $accuracy *= 100;
 $sendMessageBuffer .= "https://user." . BanYouDomain . "/" . rawurlencode($username). "\n";
 $sendMessageBuffer .= "Stats for {$username} ({$modeName}):\n";
+if ($pp > 0) {
+	$sendMessageBuffer .= "PP: {$pp}, ";
+}
 $sendMessageBuffer .= "Score: {$score} (#{$rank})\n";
 $sendMessageBuffer .= "Plays: {$playcount} (lv{$level})\n";
 $sendMessageBuffer .= "Accuracy: {$accuracy}%\n";

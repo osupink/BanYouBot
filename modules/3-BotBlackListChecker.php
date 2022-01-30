@@ -1,5 +1,5 @@
 <?php
-global $conn;
+global $conn, $isNeedDelete;
 if (!defined('BotFramework')) {
 	return;
 }
@@ -37,10 +37,16 @@ function CheckCommandBlacklist(string $command, bool $admin = true): int {
 				case 'roll':
 				#case 'weather':
 				case 'br':
-					break;
 				case 'h':
+					break;
+				case 'hr':
+					//if (isset($reqGroupNumber) && $reqGroupNumber !== 132783429 && !$isFakeAdmin && !(isset($reqQQRole) && $reqQQRole > 0)) {
+					if (isset($reqGroupNumber) && !$isFakeAdmin && !(isset($reqQQRole) && $reqQQRole > 0)) {
+						$status = 1;
+					}
+					break;
 				case 'he':
-					if ($reqGroupNumber === 193067962) {
+					if (!$isFakeAdmin && !(isset($reqGroupNumber) && ($reqGroupNumber === mainGroupNumber || $reqGroupNumber === 132783429)) && !(isset($reqQQRole) && $reqQQRole > 0)) {
 						$status = 1;
 					}
 					break;
@@ -51,17 +57,23 @@ function CheckCommandBlacklist(string $command, bool $admin = true): int {
 					break;
 				case 'atall':
 				case 'botadmin':
+					// 用于测试使用，方便在 !help 指令模拟查看没有权限玩家的指令使用结果
 					if ($isMaster || (!$isFakeAdmin && $reqQQRole < 1)) {
+					//if ($isMaster || !$isFakeAdmin) {
 						$status = 1;
 					}
 					break;
-				case 'hr':
 				case 'kick':
 				case 'getkey':
 				case 'bansay':
 				case 'fs':
 				case 'announce':
 					$status = 1;
+					break;
+				case 'settitle':
+					if (!isset($reqGroupNumber) || $reqGroupNumber !== 132783429) {
+						$status = 1;
+					}
 					break;
 				default:
 					if (isset($reqGroupNumber) && !isAllowGroupMessage($reqGroupNumber)) {
@@ -93,13 +105,13 @@ function CheckSilenceList(string $fullMessage): int {
 						$stmt->close();
 					} else {
 						$stmt->close();
-						if ($blockTime == 0) {
+						if ($blockTime == -1) {
 							Kick($reqGroupNumber,$reqQQNumber);
 							$status = 2;
 						}
+						$status = 1;
 						if ($blockTime > 0) {
 							Silence($reqGroupNumber, $reqQQNumber, $blockTime*60);
-							$status = 1;
 						}
 						DeleteMessage($reqMessageID);
 						break;
@@ -156,6 +168,7 @@ function isBanQQ($QQNumber): bool {
 	AddDebugValue(array('isBanQQ' => $status));
 	return $status;
 }
+$isNeedDelete = 0;
 // 防止自激
 if (isset($reqQQNumber)) {
 	if (isBanQQ($reqQQNumber) || (isset($reqGroupNumber) && !isAllowGroupMessage($reqGroupNumber))) {

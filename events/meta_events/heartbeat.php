@@ -12,9 +12,6 @@ function CheckEvent() {
 		$eventList = $res->fetch_all(MYSQLI_ASSOC);
 		foreach ($eventList as $event) {
 			extract($event);
-			if (empty($qqNumber)) {
-				continue;
-			}
 			setGameMode($mode);
 			$stmt = $conn->prepare("SELECT score_id, rank, enabled_mods, pp, score FROM {$highScoreTable} WHERE user_id = ? AND beatmap_id = ? LIMIT 1");
 			if ($stmt->bind_param('ii', $user_id, $beatmap_id) && $stmt->execute() && $stmt->bind_result($scoreID, $rank, $modsnumber, $finalpp, $score) && $stmt->fetch()) {
@@ -52,20 +49,38 @@ function CheckEvent() {
 					continue;
 				}
 				for ($i=0; $i<3; $i++) {
-					if (sendGroupMessage($groupNumber, $text)) {
+					if (sendGroupMessage($groupNumber, $text) !== false) {
 						break;
 					}
 				}
 			}
 			$latestEventID = $eventID;
 		}
-	}
-	if (isset($latestEventID)) {
-		rewind($lastEventIDFile);
-		fwrite($lastEventIDFile, $latestEventID);
+		if (isset($latestEventID)) {
+			rewind($lastEventIDFile);
+			fwrite($lastEventIDFile, $latestEventID);
+		}
 		flock($lastEventIDFile, LOCK_UN);
 		fclose($lastEventIDFile);
 	}
 }
+function CheckDeleteMessage() {
+	$cacheFileDir = RootPath . ReplacePathSeparator("/cache");
+	if (!is_dir($cacheFileDir)) {
+		return;
+	}
+	foreach (glob($cacheFileDir . ReplacePathSeparator("/messages/*.txt")) as $filePath) {
+		if ((int)file_get_contents($filePath) >= time()) {
+			continue;
+		}
+		unlink($filePath);
+		for ($i=0; $i<3; $i++) {
+			if (DeleteMessage(basename($filePath, '.txt')) !== false) {
+				break;
+			}
+		}
+	}
+}
 CheckEvent();
+CheckDeleteMessage();
 ?>

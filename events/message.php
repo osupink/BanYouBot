@@ -48,6 +48,7 @@ if (!isset($messageSplit) || count($messageSplit) < 1 || !isset($messageType)) {
 if (!isset($sendMessageBuffer)) {
 	$sendMessageBuffer = '';
 }
+$hRequireCount = 0;
 foreach ($messageSplit as $message) {
 	if ($messageType === 1 || MatchCommandPrefix($message)) {
 		$message = substr(TrimMultiSpace(trim($message)), 1);
@@ -112,7 +113,10 @@ foreach ($messageSplit as $message) {
 		case "checkin":
 		*/
 		case "h":
-			require_once($commandPath);
+			if ($hRequireCount < 5) {
+				$hRequireCount++;
+				require($commandPath);
+			}
 			break;
 		default:
 			require($commandPath);

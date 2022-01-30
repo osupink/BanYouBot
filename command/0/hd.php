@@ -13,6 +13,25 @@ function is_image(string $filePath): string {
 	return '';
 }
 global $lang;
+if (!$isMaster) {
+	$username = isBindID($reqQQNumber,$sendMessageBuffer, false);
+	if (!isset($memcache)) {
+		$memcache = new Memcache;
+		if (!$memcache->connect(MemcacheAddress, MemcachePort)) {
+			define('MemcacheError', true);
+		}
+	}
+	if (defined('MemcacheError')) {
+		$sendMessageBuffer .= "Cache System Error!\n";
+		return;
+	}
+	$memcacheKey = "BanYouBot.h.{$reqQQNumber}";
+	$hUsageCount = $memcache->get($memcacheKey);
+	if ($hUsageCount >= 100 || (empty($username) && $hUsageCount >= 10)) {
+		$sendMessageBuffer .= "The maximum usage count have been reached today.\n";
+		return;
+	}
+}
 $page_id = 0;
 $page_num = -1;
 if (isset($commandArr) && is_numeric($commandArr[0])) {
@@ -55,6 +74,13 @@ if ($page_id === 0 || $page_num === -1) {
 			$availablePagesStr = implode(', ', $availablePages);
 		}
 	}
+	if (!$isMaster) {
+		if (!$hUsageCount) {
+			$memcache->set($memcacheKey, 1, 0, MemcacheTime);
+		} else {
+			$memcache->increment($memcacheKey, 1);
+		}
+	}
 	$sendMessageBuffer .= "Page ID: {$page_id}\nMedia ID: {$media_id}\nTotal Pages: {$pages}\nAvailable Pages: {$availablePagesStr}\nEnglish Title: {$engtitle}\n";
 	$tagsSplit = explode(',', $tags);
 	if (count($tagsSplit) > 0) {
@@ -91,6 +117,13 @@ $pageImagePath = is_image(RootPath . ReplacePathSeparator("/nh-api/cache/{$media
 if (empty($pageImagePath)) {
 	$sendMessageBuffer .= "{$lang['h_not_found']}\n";
 	return;
+}
+if (!$isMaster) {
+	if (!$hUsageCount) {
+		$memcache->set($memcacheKey, 1, 0, MemcacheTime);
+	} else {
+		$memcache->increment($memcacheKey, 1);
+	}
 }
 $sendMessageBuffer .= "{$page_num}/{$pages} {$engtitle}\n";
 $sendMessageBuffer .= "[CQ:image,file=file:///{$pageImagePath}]\n";

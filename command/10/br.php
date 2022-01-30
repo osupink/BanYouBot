@@ -39,7 +39,7 @@ if (!empty($title)) {
 $sendMessageBuffer .= "{$lang['rank']}{$lang['colon']}{$rank}{$lang['comma']}Mods{$lang['colon']}{$mods}{$lang['comma']}{$pp}pp({$finalpp}pp)\n";
 $sendMessageBuffer .= "{$lang['beatmap']}{$lang['colon']}https://osu.ppy.sh/b/{$beatmapID}";
 if (!empty($hitLength)) {
-	$sendMessageBuffer .= "{$lang['comma']}{$lang['beatmap_hit_length']}{$lang['colon']}{$hitLength} {$lang['second']}{$lang['comma']}{$lang['beatmap_total_length']}{$lang['colon']}{$totalTime} {$lang['second']}";
+	$sendMessageBuffer .= " {$lang['comma']}{$lang['beatmap_hit_length']}{$lang['colon']}{$hitLength} {$lang['second']}{$lang['comma']}{$lang['beatmap_total_length']}{$lang['colon']}{$totalTime} {$lang['second']}";
 }
 $sendMessageBuffer .= "\n";
 $sendMessageBuffer .= "{$lang['userpage']}{$lang['colon']}https://user.".BanYouDomain."/".rawurlencode($username). "\n";
